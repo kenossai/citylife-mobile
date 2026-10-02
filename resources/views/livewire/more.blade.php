@@ -1,5 +1,5 @@
 <div>
-    <a href="#" class="profile-head">
+    <a href="{{ route('profile') }}" wire:navigate class="profile-head">
         <div class="badge">{{ collect(explode(' ', $name))->map(fn ($n) => $n[0])->join('') }}</div>
         <div>
             <h1>{{ $name }}</h1>

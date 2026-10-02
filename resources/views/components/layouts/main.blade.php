@@ -90,6 +90,31 @@
         .navbar a { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; color: #9a9aa2; }
         .navbar a.active { color: #4f7df3; }
         .navbar svg { width: 28px; height: 28px; }
+
+        .profile-page .p-head { position: relative; display: flex; flex-direction: column; align-items: center; padding: calc(env(safe-area-inset-top) + 16px) 20px 28px; color: #fff; background: linear-gradient(135deg, #5b8def, #7c4dff); }
+        .profile-page .p-back { position: absolute; left: 20px; top: calc(env(safe-area-inset-top) + 16px); width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,.25); display: grid; place-items: center; }
+        .profile-page .p-title { font-size: 18px; font-weight: 600; margin-bottom: 18px; line-height: 40px; }
+        .profile-page .p-avatar { width: 92px; height: 92px; border-radius: 50%; background: #fff; color: #5b8def; display: grid; place-items: center; font-size: 30px; font-weight: 700; }
+        .profile-page .p-head h1 { margin-top: 12px; font-size: 22px; }
+        .profile-page .p-head p { margin-top: 4px; font-size: 14px; opacity: .85; }
+        .profile-page .p-body { padding: 0 20px 24px; }
+        .profile-page h2 { margin: 28px 0 14px; font-size: 20px; font-weight: 700; }
+        .profile-page .p-card { padding: 4px 16px; }
+        .profile-page .p-row { display: flex; align-items: center; gap: 16px; padding: 16px 0; }
+        .profile-page .p-row + .p-row { border-top: 1px solid #ececec; }
+        .profile-page .p-ico { width: 54px; height: 54px; border-radius: 14px; display: grid; place-items: center; flex: none; }
+        .profile-page .p-ico svg { width: 26px; height: 26px; }
+        .profile-page .p-row small { display: block; color: #8a8a8f; font-size: 14px; }
+        .profile-page .p-row b { display: block; margin-top: 3px; font-size: 17px; font-weight: 600; line-height: 1.35; }
+        .profile-page .p-label { flex: 1; font-size: 17px; font-weight: 600; }
+        .profile-page .p-switch { position: relative; width: 62px; height: 36px; border: 2px solid transparent; border-radius: 999px; background: #e0e0e5; flex: none; transition: background .2s; }
+        .profile-page .p-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #6b7280; transition: transform .2s, background .2s; }
+        .profile-page .p-switch.on { background: #4f7df3; }
+        .profile-page .p-switch.on::after { background: #fff; transform: translateX(26px); }
+        .profile-page .p-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-top: 14px; padding: 18px; border-radius: 16px; border: 2px solid #5b8def; background: transparent; color: #5b8def; font: inherit; font-size: 17px; font-weight: 600; }
+        .profile-page .p-btn svg { width: 22px; height: 22px; }
+        .profile-page .p-btn.primary { background: #5b8def; color: #fff; box-shadow: 0 4px 10px rgba(91,141,239,.35); margin-top: 24px; }
+        .profile-page .p-btn.danger { border-color: #f44336; color: #f44336; }
     </style>
 </head>
 <body x-data="{ more: false }" @keydown.escape.window="more = false">
