@@ -11,8 +11,8 @@
     @foreach ($sections as $title => $items)
         <h2 class="menu-title">{{ $title }}</h2>
         <nav class="card menu">
-            @foreach ($items as [$label, $icon, $count])
-                <a href="#">
+            @foreach ($items as [$label, $icon, $count, $route])
+                <a href="{{ route($route) }}" wire:navigate @click="more = false">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ $icon }}"/></svg>
                     <span>{{ $label }}</span>
                     @if ($count)<span class="count">{{ $count }}</span>@endif
