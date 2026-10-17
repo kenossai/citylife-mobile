@@ -29,5 +29,8 @@ foreach ([
     'course', 'notifications', 'bible-reading-plan', 'small-groups',
     'share-app', 'location', 'call-us', 'email-us', 'app-settings', 'help-support',
 ] as $page) {
-    Route::get("/{$page}", Placeholder::class)->defaults('title', Str::headline($page))->name($page);
+    Route::get("/{$page}", Placeholder::class)
+        ->defaults('title', Str::headline($page))
+        ->defaults('page', $page)
+        ->name($page);
 }

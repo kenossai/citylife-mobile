@@ -3,7 +3,7 @@
         <div class="hero-row">
             <div class="avatar">CITY LIFE</div>
             <div>
-                <small>Welcome back!</small>
+                <small>{{ $this->greeting() }} 👋</small>
                 <strong>{{ $name }}</strong>
             </div>
             <a href="{{ route('notifications') }}" wire:navigate class="bell" aria-label="Notifications">
@@ -13,14 +13,7 @@
         </div>
     </header>
 
-    <div class="content">
-        <div class="card quick">
-            <a href="{{ route('events') }}" wire:navigate><span class="ico" style="background:#254b3b"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M7 2v3M17 2v3M4 8h16M5 4h14a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/></svg></span>Events</a>
-            <a href="{{ route('sermons') }}" wire:navigate><span class="ico" style="background:#557a5c"><svg width="30" height="30" viewBox="0 0 24 24" fill="#fff"><path d="M3 7a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v3l5-3v10l-5-3v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>Sermons</a>
-            <a href="{{ route('give') }}" wire:navigate><span class="ico" style="background:#c9634d"><svg width="30" height="30" viewBox="0 0 24 24" fill="#fff"><path d="M12 21s-8-5.3-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.7-8 11-8 11z"/></svg></span>Give</a>
-            <a href="{{ route('course') }}" wire:navigate><span class="ico" style="background:#b8832b"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><path d="M12 6c-2-1.5-5-2-9-2v14c4 0 7 .5 9 2 2-1.5 5-2 9-2V4c-4 0-7 .5-9 2zM12 6v14"/></svg></span>Course</a>
-        </div>
-
+    <div class="content home-content">
         @if ($isLive)
             <section class="live">
                 <div>
@@ -31,6 +24,36 @@
                 <a href="{{ route('sermons') }}" wire:navigate class="watch">Watch</a>
             </section>
         @endif
+
+        <section class="home-verse">
+            <span>Verse of the Day</span>
+            <blockquote>“{{ $verse['text'] }}”</blockquote>
+            <cite>{{ $verse['reference'] }}</cite>
+        </section>
+
+        <div class="home-shortcuts">
+            @foreach ($shortcuts as $shortcut)
+                <a href="{{ route($shortcut['route']) }}" wire:navigate>
+                    <i><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ $shortcut['icon'] }}"/></svg></i>
+                    <span>{{ $shortcut['label'] }}</span>
+                </a>
+            @endforeach
+        </div>
+
+        <div class="section-head">
+            <h3>Latest Series</h3>
+            <a href="{{ route('sermons') }}" wire:navigate>View All</a>
+        </div>
+
+        <div class="home-series">
+            @foreach ($series as $item)
+                <a href="{{ route('sermons.series', $item['slug']) }}" wire:navigate style="--series: {{ $item['color'] }}">
+                    <small>{{ count($item['messages']) }} messages</small>
+                    <strong>{{ $item['name'] }}</strong>
+                    <p>{{ $item['description'] }}</p>
+                </a>
+            @endforeach
+        </div>
 
         <div class="section-head">
             <h3>Upcoming Events</h3>

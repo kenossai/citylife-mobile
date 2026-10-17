@@ -1,5 +1,5 @@
 <div>
-    <a href="{{ route('profile') }}" wire:navigate class="profile-head">
+    <a href="{{ route('profile') }}" wire:navigate data-app-more-navigation @click="more = false" class="profile-head">
         <div class="badge">{{ collect(explode(' ', $name))->map(fn ($n) => $n[0])->join('') }}</div>
         <div>
             <h1>{{ $name }}</h1>
@@ -12,7 +12,7 @@
         <h2 class="menu-title">{{ $title }}</h2>
         <nav class="card menu">
             @foreach ($items as [$label, $icon, $count, $route])
-                <a href="{{ route($route) }}" wire:navigate @click="more = false">
+                <a href="{{ route($route) }}" wire:navigate data-app-more-navigation @click="more = false">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ $icon }}"/></svg>
                     <span>{{ $label }}</span>
                     @if ($count)<span class="count">{{ $count }}</span>@endif

@@ -1,6 +1,6 @@
 <div>
     <header class="series-hero" style="background: linear-gradient(160deg, {{ $series['color'] }}, #000)">
-        <a href="{{ route('sermons') }}" wire:navigate class="series-back" aria-label="Back">
+        <a href="{{ route('sermons') }}" wire:navigate data-app-back class="series-back" aria-label="Back">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
         </a>
         <div>

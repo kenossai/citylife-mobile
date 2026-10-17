@@ -1,6 +1,6 @@
 <div>
     <header class="detail-hero">
-        <a href="{{ route('events') }}" wire:navigate class="back" aria-label="Back">
+        <a href="{{ route('events') }}" wire:navigate data-app-back class="back" aria-label="Back">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
         </a>
         <span class="tag-pill" style="background:rgba(255,255,255,.9)">{{ $event['category'] }}</span>
