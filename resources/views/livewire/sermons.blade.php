@@ -19,7 +19,7 @@
         @if ($tab === 'series')
             @forelse ($this->seriesList as $series)
                 <a href="{{ route('sermons.series', $series['slug']) }}" wire:navigate class="card series-card" wire:key="series-{{ $series['slug'] }}">
-                    <div class="series-thumb" style="background: linear-gradient(135deg, {{ $series['color'] }}, #000)"></div>
+                    <div class="series-thumb" style="{{ ($series['image'] ?? null) ? "background: url('{$series['image']}') center / cover no-repeat, {$series['color']}" : "background: linear-gradient(135deg, {$series['color']}, #000)" }}"></div>
                     <div class="series-info">
                         <h3>{{ $series['name'] }}</h3>
                         <p>{{ $series['description'] }}</p>

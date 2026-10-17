@@ -1,5 +1,5 @@
 <div>
-    <header class="detail-hero">
+    <header class="detail-hero"@if ($event['image'] ?? null) style="background: linear-gradient(to bottom, rgba(0,0,0,.2), rgba(0,0,0,.55)), url('{{ $event['image'] }}') center / cover no-repeat, #292929"@endif>
         <a href="{{ route('events') }}" wire:navigate data-app-back class="back" aria-label="Back">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
         </a>

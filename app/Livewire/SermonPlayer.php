@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Support\SeriesData;
+use App\Support\SermonMedia;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -26,6 +27,7 @@ class SermonPlayer extends Component
 
         return view('livewire.sermon-player', [
             'message' => $messages[$this->number - 1],
+            'media' => SermonMedia::from($messages[$this->number - 1]['video_url'] ?? null),
             'previous' => $this->number > 1 ? $this->number - 1 : null,
             'next' => $this->number < count($messages) ? $this->number + 1 : null,
         ]);

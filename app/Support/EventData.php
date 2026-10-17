@@ -56,6 +56,7 @@ class EventData
             'address' => '',
             'category' => $event['category'] ?: 'Events',
             'about' => $event['description'] ?? '',
+            'image' => $event['image_url'] ?? null,
         ];
     }
 }

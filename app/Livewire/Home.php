@@ -16,6 +16,10 @@ class Home extends Component
 
     public bool $isLive = true;
 
+    public string $liveTitle = 'Sunday Service';
+
+    public string $liveSubtitle = 'Join us in worship';
+
     public int $notifications = 0;
 
     public array $events = [];
@@ -39,7 +43,16 @@ class Home extends Component
 
     public function mount(): void
     {
-        $verse = ContentApi::get('verse/today');
+        $home = ContentApi::get('home');
+
+        if ($home !== null) {
+            $live = $home['live'] ?? null;
+            $this->isLive = filled($live);
+            $this->liveTitle = $live['title'] ?? $this->liveTitle;
+            $this->liveSubtitle = filled($live['speaker'] ?? null) ? 'with '.$live['speaker'] : $this->liveSubtitle;
+        }
+
+        $verse = $home['verse'] ?? null;
 
         if (filled($verse['text'] ?? null) && filled($verse['reference'] ?? null)) {
             $this->verse = ['text' => $verse['text'], 'reference' => $verse['reference']];

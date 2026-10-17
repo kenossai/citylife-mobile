@@ -73,6 +73,8 @@
                     <span class="feature-icon">
                         @if ($notification['icon'] === 'calendar')
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v3m10-3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13H4V6a1 1 0 0 1 1-1z"/></svg>
+                        @elseif ($notification['icon'] === 'megaphone')
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l8 4V6L7 10H4a1 1 0 0 0-1 1zM19 9a4 4 0 0 1 0 6"/></svg>
                         @else
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.8c0 5.2-8.8 11-8.8 11s-8.8-5.8-8.8-11a4.8 4.8 0 0 1 8.8-2.6 4.8 4.8 0 0 1 8.8 2.6z"/></svg>
                         @endif
@@ -83,6 +85,7 @@
                             @unless ($notification['read'])<span class="notification-dot" aria-label="Unread"></span>@endunless
                         </div>
                         <p>{{ $notification['message'] }}</p>
+                        @if ($notification['link'] ?? null)<a href="{{ $notification['link'] }}" class="feature-text-button" rel="noopener">Learn more</a>@endif
                         <small>{{ $notification['time'] }}</small>
                     </div>
                     @unless ($notification['read'])

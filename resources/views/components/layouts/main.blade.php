@@ -2852,6 +2852,38 @@
             }
         }
 
+        .player-hero[data-media] {
+            height: 120px;
+        }
+
+        .player-media {
+            margin: 4px 0 16px;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .player-media iframe,
+        .player-media video {
+            display: block;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border: 0;
+        }
+
+        .player-media audio {
+            display: block;
+            width: 100%;
+        }
+
+        .player-link {
+            display: block;
+            padding: 16px;
+            text-align: center;
+            color: #fff;
+            font-weight: 600;
+        }
+
         @media (min-width: 521px) {
             .screen {
                 min-height: 100vh;

@@ -18,8 +18,8 @@
             <section class="live">
                 <div>
                     <div class="tag">LIVE NOW</div>
-                    <h2>Sunday Service</h2>
-                    <p>Join us in worship</p>
+                    <h2>{{ $liveTitle }}</h2>
+                    <p>{{ $liveSubtitle }}</p>
                 </div>
                 <a href="{{ route('sermons') }}" wire:navigate class="watch">Watch</a>
             </section>
@@ -47,7 +47,7 @@
 
         <div class="home-series">
             @foreach ($series as $item)
-                <a href="{{ route('sermons.series', $item['slug']) }}" wire:navigate style="--series: {{ $item['color'] }}">
+                <a href="{{ route('sermons.series', $item['slug']) }}" wire:navigate style="--series: {{ ($item['image'] ?? null) ? "url('{$item['image']}') center / cover no-repeat, {$item['color']}" : $item['color'] }}">
                     <small>{{ count($item['messages']) }} messages</small>
                     <strong>{{ $item['name'] }}</strong>
                     <p>{{ $item['description'] }}</p>

@@ -75,6 +75,7 @@ class SeriesData
             'slug' => $series['slug'],
             'description' => $series['description'] ?? '',
             'color' => $series['color'] ?: '#e85d26',
+            'image' => $series['thumbnail_url'] ?? null,
             'messages' => array_map(fn (array $sermon) => [
                 'title' => $sermon['title'],
                 'pastor' => $sermon['speaker'] ?: 'City Life Church',
