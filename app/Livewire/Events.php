@@ -19,6 +19,7 @@ class Events extends Component
     public function mount(): void
     {
         $this->events = array_values(EventData::all());
+        $this->categories = array_values(array_unique([...$this->categories, ...array_column($this->events, 'category')]));
     }
 
     #[Computed]

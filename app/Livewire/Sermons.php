@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Support\ContentApi;
 use App\Support\SeriesData;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
@@ -21,6 +22,27 @@ class Sermons extends Component
         ['id' => 3, 'title' => 'Living with Purpose', 'pastor' => 'Pastor John Smith', 'date' => '2025-12-15', 'series' => 'Faith Journey', 'minutes' => 42, 'views' => 980, 'color' => '#111827'],
         ['id' => 4, 'title' => 'Grace That Restores', 'pastor' => 'Pastor Sarah Johnson', 'date' => '2025-12-08', 'series' => 'Prayer Life', 'minutes' => 40, 'views' => 1675, 'color' => '#4b5563'],
     ];
+
+    public function mount(): void
+    {
+        if (! ContentApi::isConfigured()) {
+            return;
+        }
+
+        $this->sermons = collect(SeriesData::all())
+            ->flatMap(fn (array $series) => array_map(fn (array $message) => [
+                'id' => 0,
+                'title' => $message['title'],
+                'pastor' => $message['pastor'],
+                'date' => $message['date'] ?? '1970-01-01',
+                'series' => $series['name'],
+                'minutes' => $message['minutes'],
+                'views' => 0,
+                'color' => $series['color'],
+            ], $series['messages']))
+            ->values()
+            ->all();
+    }
 
     public function showTab(string $tab): void
     {

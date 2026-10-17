@@ -2,10 +2,18 @@
 
 namespace App\Support;
 
+use Illuminate\Support\Carbon;
+
 class EventData
 {
     public static function all(): array
     {
+        $remote = ContentApi::get('events');
+
+        if ($remote !== null) {
+            return collect($remote)->mapWithKeys(fn (array $event) => [$event['id'] => self::fromApi($event)])->all();
+        }
+
         $about = 'Join us for a time of worship, teaching and fellowship. Everyone is welcome, so bring a friend and come expecting.';
 
         return [
@@ -19,6 +27,35 @@ class EventData
 
     public static function find(int $id): ?array
     {
+        if (ContentApi::isConfigured()) {
+            $event = ContentApi::get("events/{$id}");
+
+            return $event ? self::fromApi($event) : null;
+        }
+
         return static::all()[$id] ?? null;
+    }
+
+    /**
+     * @param  array<string, mixed>  $event
+     * @return array<string, mixed>
+     */
+    private static function fromApi(array $event): array
+    {
+        $startsAt = Carbon::parse($event['starts_at']);
+
+        return [
+            'id' => $event['id'],
+            'month' => $startsAt->format('M'),
+            'day' => (int) $startsAt->format('j'),
+            'date' => $startsAt->format('l, j F'),
+            'title' => $event['title'],
+            'time' => $startsAt->format('g:i A'),
+            'end' => '',
+            'place' => $event['location'] ?: 'City Life Church',
+            'address' => '',
+            'category' => $event['category'] ?: 'Events',
+            'about' => $event['description'] ?? '',
+        ];
     }
 }

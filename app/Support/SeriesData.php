@@ -9,6 +9,12 @@ class SeriesData
     /** @return array<string, array{name: string, slug: string, description: string, color: string, messages: array<int, array{title: string, pastor: string, minutes: int}>}> */
     public static function all(): array
     {
+        $remote = ContentApi::get('series');
+
+        if ($remote !== null) {
+            return collect($remote)->mapWithKeys(fn (array $series) => [$series['slug'] => self::fromApi($series)])->all();
+        }
+
         $series = [
             [
                 'name' => 'Faith Journey',
@@ -49,6 +55,50 @@ class SeriesData
 
     public static function find(string $slug): ?array
     {
+        if (ContentApi::isConfigured()) {
+            $series = ContentApi::get('series/'.rawurlencode($slug));
+
+            return $series ? self::fromApi($series) : null;
+        }
+
         return self::all()[$slug] ?? null;
+    }
+
+    /**
+     * @param  array<string, mixed>  $series
+     * @return array<string, mixed>
+     */
+    private static function fromApi(array $series): array
+    {
+        return [
+            'name' => $series['title'],
+            'slug' => $series['slug'],
+            'description' => $series['description'] ?? '',
+            'color' => $series['color'] ?: '#e85d26',
+            'messages' => array_map(fn (array $sermon) => [
+                'title' => $sermon['title'],
+                'pastor' => $sermon['speaker'] ?: 'City Life Church',
+                'minutes' => self::minutes($sermon['duration'] ?? null),
+                'date' => $sermon['preached_at'] ?? null,
+                'video_url' => $sermon['video_url'] ?? null,
+            ], $series['sermons'] ?? []),
+        ];
+    }
+
+    private static function minutes(?string $duration): int
+    {
+        if ($duration === null) {
+            return 0;
+        }
+
+        if (preg_match('/^(\d+):(\d+):(\d+)$/', $duration, $parts)) {
+            return ((int) $parts[1] * 60) + (int) $parts[2];
+        }
+
+        if (preg_match('/^(\d+):(\d+)$/', $duration, $parts)) {
+            return (int) $parts[1];
+        }
+
+        return preg_match('/\d+/', $duration, $parts) ? (int) $parts[0] : 0;
     }
 }

@@ -12,16 +12,18 @@
         <div class="card info">
             <div class="row">
                 <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 2v3M17 2v3M4 8h16M5 4h14a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/></svg></div>
-                <div><b>{{ $event['date'] }}</b><p>{{ $event['time'] }} – {{ $event['end'] }}</p></div>
+                <div><b>{{ $event['date'] }}</b><p>{{ $event['time'] }}@if ($event['end']) – {{ $event['end'] }}@endif</p></div>
             </div>
             <div class="row">
                 <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12zM12 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/></svg></div>
-                <div><b>{{ $event['place'] }}</b><p>{{ $event['address'] }}</p></div>
+                <div><b>{{ $event['place'] }}</b>@if ($event['address'])<p>{{ $event['address'] }}</p>@endif</div>
             </div>
         </div>
 
-        <h3>About this event</h3>
-        <p class="about">{{ $event['about'] }}</p>
+        @if ($event['about'])
+            <h3>About this event</h3>
+            <p class="about">{{ $event['about'] }}</p>
+        @endif
 
         <button type="button" wire:click="toggleRegistration" @class(['cta', 'done' => $registered])>
             {{ $registered ? "You're registered ✓" : 'Register' }}
