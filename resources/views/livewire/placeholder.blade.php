@@ -9,55 +9,7 @@
         </div>
     </header>
 
-    @if ($page === 'course')
-        @php($courseProgress = (int) round(count($completedLessons) / count($lessons) * 100))
-        <section class="feature-hero course-hero">
-            <span class="feature-eyebrow">GROW IN FAITH</span>
-            <h2>Bible School International</h2>
-            <p>Explore the foundations of faith at your own pace.</p>
-            <div class="feature-progress" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $courseProgress }}">
-                <span style="width: {{ $courseProgress }}%"></span>
-            </div>
-            <div class="feature-progress-meta">
-                <span>{{ count($completedLessons) }} of {{ count($lessons) }} lessons complete</span>
-                <span>{{ $courseProgress }}%</span>
-            </div>
-        </section>
-
-        <section class="feature-section">
-            <div class="feature-section-heading">
-                <div><span class="feature-kicker">YOUR JOURNEY</span><h2>Course lessons</h2></div>
-                <span class="feature-count">{{ count($lessons) }} lessons</span>
-            </div>
-            <div class="feature-list">
-                @foreach ($lessons as $lesson)
-                    @php($lessonComplete = in_array($lesson['id'], $completedLessons, true))
-                    <article class="feature-row lesson-row" wire:key="lesson-{{ $lesson['id'] }}">
-                        <span @class(['feature-icon', 'is-complete' => $lessonComplete])>
-                            @if ($lessonComplete)
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
-                            @else
-                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-                            @endif
-                        </span>
-                        <div class="feature-row-copy">
-                            <h3>{{ $lesson['title'] }}</h3>
-                            <p>{{ $lesson['description'] }}</p>
-                            <small>{{ $lesson['duration'] }}</small>
-                        </div>
-                        <button type="button" class="feature-check" aria-label="{{ $lessonComplete ? 'Mark lesson incomplete' : 'Mark lesson complete' }}" @disabled(! $courseStarted) wire:click="toggleLesson({{ $lesson['id'] }})">
-                            {{ $lessonComplete ? 'Done' : 'Mark done' }}
-                        </button>
-                    </article>
-                @endforeach
-            </div>
-            <button type="button" class="feature-primary" wire:click="startCourse">
-                {{ $courseStarted ? 'Continue learning' : 'Start course' }}
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
-            </button>
-            <p class="feature-footnote">Your lesson progress is saved for this app session.</p>
-        </section>
-    @elseif ($page === 'notifications')
+    @if ($page === 'notifications')
         @php($unreadCount = count(array_filter($notifications, fn ($notification) => ! $notification['read'])))
         <section class="feature-intro">
             <span class="feature-kicker">YOUR INBOX</span>

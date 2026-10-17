@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Support\MemberSession;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Native\Mobile\Facades\Browser;
 
 #[Layout('components.layouts.main')]
 class Login extends Component
@@ -39,6 +40,13 @@ class Login extends Component
         }
 
         return $this->redirectRoute('home', navigate: true);
+    }
+
+    public function openForgotPassword()
+    {
+        $url = rtrim(config('services.citylife.url'), '/').'/member/forgot-password';
+
+        return Browser::inApp($url) ? null : redirect()->away($url);
     }
 
     public function render()

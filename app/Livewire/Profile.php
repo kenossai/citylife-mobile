@@ -6,6 +6,7 @@ use App\Support\ContentApi;
 use App\Support\MemberSession;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Native\Mobile\Facades\Browser;
 
 #[Layout('components.layouts.main')]
 class Profile extends Component
@@ -13,6 +14,10 @@ class Profile extends Component
     public string $name = 'John Doe';
 
     public string $memberSince = 'March 2023';
+
+    public bool $usesWebsite = false;
+
+    public string $subtitle = 'Member since March 2023';
 
     /** @var array<string, string> */
     public array $contact = [
@@ -41,6 +46,8 @@ class Profile extends Component
             return null;
         }
 
+        $this->usesWebsite = true;
+
         $member = MemberSession::member();
 
         if (! $member) {
@@ -50,17 +57,26 @@ class Profile extends Component
         $since = filled($member['member_since'] ?? null) ? strtotime($member['member_since']) : null;
 
         $this->name = $member['name'];
-        $this->memberSince = $since ? date('F Y', $since) : date('Y');
+        $this->memberSince = $since ? date('F Y', $since) : '';
+        $this->subtitle = MemberSession::subtitle($member);
         $this->contact = array_filter([
             'Email' => $member['email'] ?? null,
             'Phone Number' => $member['phone'] ?? null,
         ]);
         $this->membership = array_filter([
             'Member ID' => $member['membership_number'] ?? null,
-            'Joined Date' => $since ? date('F j, Y', $since) : null,
+            'Status' => MemberSession::statusLabel($member),
+            'Member Since' => $since ? date('F j, Y', $since) : null,
         ]);
 
         return null;
+    }
+
+    public function openPasswordReset()
+    {
+        $url = rtrim(config('services.citylife.url'), '/').'/member/forgot-password';
+
+        return Browser::inApp($url) ? null : redirect()->away($url);
     }
 
     public function togglePreference(string $preference): void

@@ -23,6 +23,8 @@
             <span wire:loading>Signing in…</span>
         </button>
 
-        <small>Need an account or a new password? Visit the church website. You can still browse and send prayer requests without signing in.</small>
+        <button type="button" class="login-link" wire:click="openForgotPassword">Forgot your password?</button>
+
+        <small>Use the same email and password as on the City Life website. Your account is created when you enrol on a course, and the email we send you has a link to set your password. You can still browse and send prayer requests without signing in.</small>
     </form>
 </div>

@@ -24,10 +24,6 @@ class Placeholder extends Component
     #[Locked]
     public array $completedReadings = [];
 
-    /** @var array<int, int> */
-    #[Locked]
-    public array $completedLessons = [];
-
     /** @var array<int, string> */
     #[Locked]
     public array $interestedGroups = [];
@@ -37,18 +33,7 @@ class Placeholder extends Component
     public array $settings = [];
 
     #[Locked]
-    public bool $courseStarted = false;
-
-    #[Locked]
     public ?string $openFaq = null;
-
-    /** @var array<int, array{id: int, title: string, duration: string, description: string}> */
-    #[Locked]
-    public array $lessons = [
-        ['id' => 1, 'title' => 'Foundations of faith', 'duration' => '8 min', 'description' => 'Build a strong foundation for your walk with God.'],
-        ['id' => 2, 'title' => 'Knowing the Word', 'duration' => '12 min', 'description' => 'Discover how Scripture shapes everyday life.'],
-        ['id' => 3, 'title' => 'Life in the Spirit', 'duration' => '10 min', 'description' => 'Explore what it means to live led by the Holy Spirit.'],
-    ];
 
     /** @var array<int, array{day: int, title: string, reference: string}> */
     #[Locked]
@@ -94,15 +79,10 @@ class Placeholder extends Component
             session('citylife.completed_readings', []),
             array_column($this->readings, 'day'),
         ));
-        $this->completedLessons = array_values(array_intersect(
-            session('citylife.completed_lessons', []),
-            array_column($this->lessons, 'id'),
-        ));
         $this->interestedGroups = array_values(array_intersect(
             session('citylife.interested_groups', []),
             array_column($this->groups, 'id'),
         ));
-        $this->courseStarted = session('citylife.course_started', false);
         $this->settings = array_replace([
             'push_notifications' => true,
             'event_reminders' => true,
@@ -143,22 +123,6 @@ class Placeholder extends Component
 
         $this->completedReadings = $this->toggleValue($this->completedReadings, $day);
         session()->put('citylife.completed_readings', $this->completedReadings);
-    }
-
-    public function startCourse(): void
-    {
-        $this->courseStarted = true;
-        session()->put('citylife.course_started', true);
-    }
-
-    public function toggleLesson(int $lessonId): void
-    {
-        if (! $this->courseStarted || ! in_array($lessonId, array_column($this->lessons, 'id'), true)) {
-            return;
-        }
-
-        $this->completedLessons = $this->toggleValue($this->completedLessons, $lessonId);
-        session()->put('citylife.completed_lessons', $this->completedLessons);
     }
 
     public function toggleGroup(string $groupId): void

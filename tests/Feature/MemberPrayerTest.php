@@ -15,7 +15,7 @@ class MemberPrayerTest extends TestCase
 {
     private const MEMBER = [
         'id' => 1, 'first_name' => 'Ada', 'last_name' => 'Obi', 'name' => 'Ada Obi',
-        'email' => 'ada@example.com', 'phone' => null, 'membership_number' => 'CL20261001', 'member_since' => '2024-03-15',
+        'email' => 'ada@example.com', 'phone' => null, 'membership_number' => 'CL20261001', 'membership_status' => 'member', 'member_since' => '2024-03-15',
     ];
 
     protected function setUp(): void
@@ -179,5 +179,45 @@ class MemberPrayerTest extends TestCase
             ->call('showTab', 'mine')
             ->assertDontSee('Awaiting review')
             ->assertSee('2 prayers');
+    }
+
+    public function test_a_visitor_account_is_labelled_by_status_not_as_a_member(): void
+    {
+        session()->put(['citylife.member_token' => 'tok', 'citylife.member' => [...self::MEMBER, 'membership_status' => 'visitor', 'member_since' => null]]);
+
+        Livewire::test(More::class)->assertSee('Visitor')->assertDontSee('Member since');
+
+        $this->get(route('profile'))->assertOk()->assertSee('Visitor')->assertDontSee('Member Since');
+    }
+
+    public function test_a_graduated_member_shows_when_they_became_a_member(): void
+    {
+        $this->signIn();
+
+        Livewire::test(More::class)->assertSee('Member since 2024');
+
+        $this->get(route('profile'))->assertSee('Member Since')->assertSee('March 15, 2024');
+    }
+
+    public function test_the_login_screen_points_to_the_website_for_passwords(): void
+    {
+        $this->get(route('login'))->assertOk()->assertSee('Forgot your password?')->assertSee('enrol on a course');
+    }
+
+    public function test_an_expired_token_signs_the_member_out(): void
+    {
+        $this->signIn();
+        Http::fake(['site.test/api/v1/prayer-requests/mine' => Http::response(['message' => 'Unauthenticated.'], 401), 'site.test/*' => Http::response(['data' => []])]);
+
+        Livewire::test(PrayerRequests::class)->assertSet('signedIn', false);
+
+        $this->assertFalse(MemberSession::check());
+    }
+
+    public function test_profile_has_no_dead_buttons_when_connected_to_the_website(): void
+    {
+        $this->signIn();
+
+        $this->get(route('profile'))->assertSee('Change Password')->assertDontSee('Delete Account')->assertDontSee('Privacy Settings');
     }
 }

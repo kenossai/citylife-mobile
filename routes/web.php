@@ -1,5 +1,8 @@
 <?php
 
+use App\Livewire\CourseDetail;
+use App\Livewire\CourseLesson;
+use App\Livewire\Courses;
 use App\Livewire\EventDetail;
 use App\Livewire\Events;
 use App\Livewire\Give;
@@ -23,12 +26,15 @@ Route::get('/prayer-requests', PrayerRequests::class)->name('prayer-requests');
 Route::get('/sermons', Sermons::class)->name('sermons');
 Route::get('/sermons/series/{slug}', SeriesDetail::class)->name('sermons.series');
 Route::get('/sermons/series/{slug}/{number}', SermonPlayer::class)->whereNumber('number')->name('sermons.play');
+Route::get('/course', Courses::class)->name('course');
+Route::get('/course/{slug}', CourseDetail::class)->name('course.show');
+Route::get('/course/{slug}/lessons/{lessonSlug}', CourseLesson::class)->name('course.lesson');
 Route::get('/give', Give::class)->name('give');
 Route::get('/events', Events::class)->name('events');
 Route::get('/events/{id}', EventDetail::class)->whereNumber('id')->name('events.show');
 
 foreach ([
-    'course', 'notifications', 'bible-reading-plan', 'small-groups',
+    'notifications', 'bible-reading-plan', 'small-groups',
     'share-app', 'location', 'call-us', 'email-us', 'app-settings', 'help-support',
 ] as $page) {
     Route::get("/{$page}", Placeholder::class)

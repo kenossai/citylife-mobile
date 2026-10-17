@@ -54,9 +54,7 @@ class More extends Component
 
         $this->signedIn = $member !== null;
         $this->name = $member['name'] ?? 'Guest';
-        $this->subtitle = $member
-            ? 'Member since '.date('Y', strtotime($member['member_since'] ?? 'now'))
-            : 'Sign in to your account';
+        $this->subtitle = $member ? MemberSession::subtitle($member) : 'Sign in to your account';
 
         $unread = NotificationData::unreadCount(session('citylife.read_notifications', []));
 

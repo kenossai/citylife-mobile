@@ -61,12 +61,12 @@ class ContentApi
      * Send a write or member-only request. Never cached.
      *
      * @param  array<string, mixed>  $payload
-     * @return array{ok: bool, status: int, data: mixed, message: ?string}
+     * @return array{ok: bool, status: int, data: mixed, message: ?string, body: mixed}
      */
     public static function send(string $method, string $path, array $payload = [], ?string $token = null): array
     {
         if (! self::isConfigured()) {
-            return ['ok' => false, 'status' => 0, 'data' => null, 'message' => 'The church website is not configured.'];
+            return ['ok' => false, 'status' => 0, 'data' => null, 'message' => 'The church website is not configured.', 'body' => null];
         }
 
         try {
@@ -78,7 +78,7 @@ class ContentApi
 
             $response = $request->send($method, rtrim(config('services.citylife.url'), '/').'/api/v1/'.ltrim($path, '/'), $method === 'GET' ? ['query' => $payload] : ['json' => $payload]);
         } catch (Throwable) {
-            return ['ok' => false, 'status' => 0, 'data' => null, 'message' => 'We could not reach the church. Please check your connection and try again.'];
+            return ['ok' => false, 'status' => 0, 'data' => null, 'message' => 'We could not reach the church. Please check your connection and try again.', 'body' => null];
         }
 
         $message = $response->json('message');
@@ -91,6 +91,7 @@ class ContentApi
             'ok' => $response->successful(),
             'status' => $response->status(),
             'data' => $response->json('data'),
+            'body' => $response->json(),
             'message' => $response->successful() ? null : ($message ?: 'Something went wrong. Please try again.'),
         ];
     }

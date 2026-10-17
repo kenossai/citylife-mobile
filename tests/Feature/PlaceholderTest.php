@@ -11,7 +11,6 @@ class PlaceholderTest extends TestCase
     public function test_every_additional_app_page_renders_its_own_content(): void
     {
         $pages = [
-            'course' => 'Bible School International',
             'notifications' => 'Sunday gathering',
             'bible-reading-plan' => 'Your readings',
             'small-groups' => 'Find your people',
@@ -57,16 +56,6 @@ class PlaceholderTest extends TestCase
             ->assertSet('completedReadings', [1])
             ->call('toggleReading', 99)
             ->assertSet('completedReadings', [1]);
-    }
-
-    public function test_course_lessons_can_be_completed_after_starting_the_course(): void
-    {
-        Livewire::test(Placeholder::class, ['title' => 'Course', 'page' => 'course'])
-            ->call('toggleLesson', 1)
-            ->assertSet('completedLessons', [])
-            ->call('startCourse')
-            ->call('toggleLesson', 1)
-            ->assertSet('completedLessons', [1]);
     }
 
     public function test_app_preferences_can_be_changed_and_saved_to_the_session(): void

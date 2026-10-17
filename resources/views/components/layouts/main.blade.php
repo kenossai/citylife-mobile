@@ -2932,6 +2932,17 @@
             margin-top: 20px;
         }
 
+        .login-link {
+            display: block;
+            margin: 14px auto 0;
+            border: 0;
+            background: none;
+            color: var(--pine);
+            font: inherit;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
         .login-card small {
             display: block;
             margin-top: 14px;
@@ -2975,6 +2986,177 @@
             color: #6b7280;
             font-size: 12px;
             font-weight: 600;
+        }
+
+        .course-tabs {
+            margin: 4px 16px 0;
+        }
+
+        .course-row {
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .course-row .course-chev {
+            width: 20px;
+            height: 20px;
+            flex: none;
+            fill: none;
+            stroke: #9ca3af;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .course-pill {
+            display: inline-block;
+            margin-bottom: 6px;
+            padding: 3px 10px;
+            border-radius: 999px;
+            background: #fff0e9;
+            color: var(--pine);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .course-group {
+            margin: 18px 4px 6px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: .6px;
+            text-transform: uppercase;
+            color: #6b7280;
+        }
+
+        .lesson-row.is-locked {
+            opacity: .55;
+        }
+
+        .course-callout {
+            margin: 14px 0;
+            padding: 14px 16px;
+            border-radius: 14px;
+            background: #fff0e9;
+            color: var(--pine);
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .course-banner {
+            margin: 0 16px 12px;
+        }
+
+        .course-enrol,
+        .course-review,
+        .course-quiz,
+        .course-notes {
+            margin: 16px 0;
+            padding: 18px;
+        }
+
+        .course-enrol label,
+        .course-review label {
+            display: block;
+            margin: 14px 0 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .course-quiz fieldset {
+            border: 0;
+            margin: 16px 0;
+        }
+
+        .course-quiz legend {
+            margin-bottom: 8px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .course-quiz .prayer-check {
+            margin-top: 10px !important;
+        }
+
+        .course-stars {
+            display: flex;
+            gap: 6px;
+            margin: 12px 0;
+        }
+
+        .course-stars button {
+            border: 0;
+            background: none;
+            font-size: 34px;
+            line-height: 1;
+            color: #d4d4d8;
+        }
+
+        .course-stars button.on {
+            color: #f59e0b;
+        }
+
+        .course-content {
+            padding: 18px;
+            font-size: 16px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .course-content h1,
+        .course-content h2,
+        .course-content h3 {
+            margin: 18px 0 8px;
+            line-height: 1.25;
+        }
+
+        .course-content p,
+        .course-content ul,
+        .course-content ol,
+        .course-content blockquote {
+            margin: 0 0 12px;
+        }
+
+        .course-content ul,
+        .course-content ol {
+            padding-left: 22px;
+        }
+
+        .course-content blockquote {
+            padding-left: 14px;
+            border-left: 3px solid var(--clay);
+            color: #52525b;
+        }
+
+        .course-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+        }
+
+        .course-content a {
+            color: var(--pine);
+            text-decoration: underline;
+        }
+
+        .course-action {
+            width: 100%;
+            margin: 14px 0 0;
+        }
+
+        .course-nav {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 18px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--pine);
+        }
+
+        .course-nav span {
+            color: #6b7280;
+            font-weight: 500;
         }
 
         @media (min-width: 521px) {

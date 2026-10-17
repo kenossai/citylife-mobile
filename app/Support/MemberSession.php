@@ -19,6 +19,30 @@ class MemberSession
         return self::token() ? session('citylife.member') : null;
     }
 
+    /**
+     * Mirror the website: only graduates of the membership course are "Members"; everyone else with an account is shown by their status.
+     *
+     * @param  array<string, mixed>  $member
+     */
+    public static function statusLabel(array $member): string
+    {
+        return match ($member['membership_status'] ?? 'visitor') {
+            'member' => 'Member',
+            'new_convert' => 'New convert',
+            'inactive' => 'Inactive',
+            'transferred' => 'Transferred',
+            default => 'Visitor',
+        };
+    }
+
+    /** @param array<string, mixed> $member */
+    public static function subtitle(array $member): string
+    {
+        $since = $member['member_since'] ?? null;
+
+        return $since ? 'Member since '.date('Y', strtotime($since)) : self::statusLabel($member);
+    }
+
     public static function check(): bool
     {
         return self::member() !== null;
@@ -61,7 +85,7 @@ class MemberSession
      * Call a member-only endpoint, signing the member out locally when the website no longer accepts their token.
      *
      * @param  array<string, mixed>  $payload
-     * @return array{ok: bool, status: int, data: mixed, message: ?string}
+     * @return array{ok: bool, status: int, data: mixed, message: ?string, body: mixed}
      */
     public static function request(string $method, string $path, array $payload = []): array
     {
