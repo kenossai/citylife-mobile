@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Support\ContentApi;
 use App\Support\EventData;
 use App\Support\NotificationData;
 use App\Support\SeriesData;
@@ -38,6 +39,12 @@ class Home extends Component
 
     public function mount(): void
     {
+        $verse = ContentApi::get('verse/today');
+
+        if (filled($verse['text'] ?? null) && filled($verse['reference'] ?? null)) {
+            $this->verse = ['text' => $verse['text'], 'reference' => $verse['reference']];
+        }
+
         $this->events = array_slice(array_values(EventData::all()), 0, 2);
         $this->series = array_values(SeriesData::all());
         $this->notifications = NotificationData::unreadCount(session('citylife.read_notifications', []));

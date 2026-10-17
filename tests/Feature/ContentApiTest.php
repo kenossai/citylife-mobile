@@ -83,4 +83,22 @@ class ContentApiTest extends TestCase
 
         $this->assertSame('Sunday Service', EventData::all()[1]['title']);
     }
+
+    public function test_home_shows_the_verse_from_the_website(): void
+    {
+        config(['services.citylife.url' => 'https://site.test']);
+
+        Http::fake(['site.test/api/v1/verse/today' => Http::response(['data' => ['text' => 'Be still and know.', 'reference' => 'Psalm 46:10']]), 'site.test/*' => Http::response(['data' => []])]);
+
+        $this->get(route('home'))->assertSee('Be still and know.')->assertSee('Psalm 46:10');
+    }
+
+    public function test_home_keeps_the_default_verse_when_the_website_has_none(): void
+    {
+        config(['services.citylife.url' => 'https://site.test']);
+
+        Http::fake(['site.test/api/v1/verse/today' => Http::response(['data' => null]), 'site.test/*' => Http::response(['data' => []])]);
+
+        $this->get(route('home'))->assertSee('Matthew 18:20');
+    }
 }
