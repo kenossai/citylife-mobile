@@ -4,6 +4,7 @@ use App\Livewire\EventDetail;
 use App\Livewire\Events;
 use App\Livewire\Give;
 use App\Livewire\Home;
+use App\Livewire\Login;
 use App\Livewire\Placeholder;
 use App\Livewire\PrayerRequests;
 use App\Livewire\Profile;
@@ -16,6 +17,7 @@ use Illuminate\Support\Str;
 
 Route::get('/', Splash::class)->name('splash');
 Route::get('/home', Home::class)->name('home');
+Route::get('/login', Login::class)->name('login');
 Route::get('/profile', Profile::class)->name('profile');
 Route::get('/prayer-requests', PrayerRequests::class)->name('prayer-requests');
 Route::get('/sermons', Sermons::class)->name('sermons');

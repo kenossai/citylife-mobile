@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Support\ContentApi;
 use App\Support\EventData;
+use App\Support\MemberSession;
 use App\Support\NotificationData;
 use App\Support\SeriesData;
 use Livewire\Attributes\Layout;
@@ -43,6 +44,10 @@ class Home extends Component
 
     public function mount(): void
     {
+        if (ContentApi::isConfigured()) {
+            $this->name = MemberSession::member()['first_name'] ?? 'Friend';
+        }
+
         $home = ContentApi::get('home');
 
         if ($home !== null) {

@@ -20,7 +20,7 @@ class ContentApi
      *
      * @return array<int|string, mixed>|null
      */
-    public static function get(string $path): ?array
+    public static function get(string $path, int $freshSeconds = self::FRESH_SECONDS): ?array
     {
         if (! self::isConfigured()) {
             return null;
@@ -38,7 +38,7 @@ class ContentApi
                 ->get(rtrim(config('services.citylife.url'), '/').'/api/v1/'.ltrim($path, '/'));
 
             if ($response->successful() && is_array($data = $response->json('data'))) {
-                Cache::put($key.':fresh', $data, self::FRESH_SECONDS);
+                Cache::put($key.':fresh', $data, $freshSeconds);
                 Cache::forever($key.':last', $data);
 
                 return $data;
@@ -50,5 +50,48 @@ class ContentApi
         $last = Cache::get($key.':last');
 
         return is_array($last) ? $last : null;
+    }
+
+    public static function forget(string $path): void
+    {
+        Cache::forget('citylife-api:'.$path.':fresh');
+    }
+
+    /**
+     * Send a write or member-only request. Never cached.
+     *
+     * @param  array<string, mixed>  $payload
+     * @return array{ok: bool, status: int, data: mixed, message: ?string}
+     */
+    public static function send(string $method, string $path, array $payload = [], ?string $token = null): array
+    {
+        if (! self::isConfigured()) {
+            return ['ok' => false, 'status' => 0, 'data' => null, 'message' => 'The church website is not configured.'];
+        }
+
+        try {
+            $request = Http::timeout(8)->acceptJson();
+
+            if ($token) {
+                $request = $request->withToken($token);
+            }
+
+            $response = $request->send($method, rtrim(config('services.citylife.url'), '/').'/api/v1/'.ltrim($path, '/'), $method === 'GET' ? ['query' => $payload] : ['json' => $payload]);
+        } catch (Throwable) {
+            return ['ok' => false, 'status' => 0, 'data' => null, 'message' => 'We could not reach the church. Please check your connection and try again.'];
+        }
+
+        $message = $response->json('message');
+
+        if ($response->status() === 422 && is_array($errors = $response->json('errors'))) {
+            $message = collect($errors)->flatten()->first() ?? $message;
+        }
+
+        return [
+            'ok' => $response->successful(),
+            'status' => $response->status(),
+            'data' => $response->json('data'),
+            'message' => $response->successful() ? null : ($message ?: 'Something went wrong. Please try again.'),
+        ];
     }
 }

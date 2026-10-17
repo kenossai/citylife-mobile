@@ -2,6 +2,9 @@
 
 namespace App\Livewire;
 
+use App\Support\ContentApi;
+use App\Support\MemberSession;
+use App\Support\NotificationData;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -10,7 +13,9 @@ class More extends Component
 {
     public string $name = 'John Doe';
 
-    public int $memberSince = 2023;
+    public string $subtitle = 'Member since 2023';
+
+    public bool $signedIn = true;
 
     public string $version = '1.0.0';
 
@@ -38,6 +43,40 @@ class More extends Component
             ['Help & Support', 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.1 9a3 3 0 0 1 5.8 1c0 2-3 2.5-3 4M12 17.5v.01', null, 'help-support'],
         ],
     ];
+
+    public function mount(): void
+    {
+        if (! ContentApi::isConfigured()) {
+            return;
+        }
+
+        $member = MemberSession::member();
+
+        $this->signedIn = $member !== null;
+        $this->name = $member['name'] ?? 'Guest';
+        $this->subtitle = $member
+            ? 'Member since '.date('Y', strtotime($member['member_since'] ?? 'now'))
+            : 'Sign in to your account';
+
+        $unread = NotificationData::unreadCount(session('citylife.read_notifications', []));
+
+        foreach ($this->sections as $title => $items) {
+            foreach ($items as $index => $item) {
+                $this->sections[$title][$index][2] = match ($item[3]) {
+                    'notifications' => $unread ?: null,
+                    'events' => null,
+                    default => $item[2],
+                };
+            }
+        }
+    }
+
+    public function signOut()
+    {
+        MemberSession::logout();
+
+        return $this->redirectRoute('home', navigate: true);
+    }
 
     public function render()
     {

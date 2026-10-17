@@ -2,6 +2,8 @@
 
 namespace App\Livewire;
 
+use App\Support\ContentApi;
+use App\Support\MemberSession;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -32,6 +34,34 @@ class Profile extends Component
         'emailNewsletters' => true,
         'eventReminders' => false,
     ];
+
+    public function mount()
+    {
+        if (! ContentApi::isConfigured()) {
+            return null;
+        }
+
+        $member = MemberSession::member();
+
+        if (! $member) {
+            return $this->redirectRoute('login', navigate: true);
+        }
+
+        $since = filled($member['member_since'] ?? null) ? strtotime($member['member_since']) : null;
+
+        $this->name = $member['name'];
+        $this->memberSince = $since ? date('F Y', $since) : date('Y');
+        $this->contact = array_filter([
+            'Email' => $member['email'] ?? null,
+            'Phone Number' => $member['phone'] ?? null,
+        ]);
+        $this->membership = array_filter([
+            'Member ID' => $member['membership_number'] ?? null,
+            'Joined Date' => $since ? date('F j, Y', $since) : null,
+        ]);
+
+        return null;
+    }
 
     public function togglePreference(string $preference): void
     {

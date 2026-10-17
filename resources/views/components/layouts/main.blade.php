@@ -2884,6 +2884,99 @@
             font-weight: 600;
         }
 
+        .login-head {
+            padding: calc(env(safe-area-inset-top) + 20px) 20px 28px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--clay), var(--pine));
+        }
+
+        .login-head h1 {
+            margin-top: 14px;
+            font-size: 26px;
+        }
+
+        .login-head p {
+            margin-top: 4px;
+            opacity: .9;
+            font-size: 14px;
+        }
+
+        .login-card {
+            margin: -16px 16px 24px;
+            padding: 20px;
+            position: relative;
+            background: #fff;
+        }
+
+        .login-card label {
+            display: block;
+            margin: 14px 0 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .login-card input {
+            display: block;
+            width: 100%;
+            padding: 12px 14px;
+            border: 0;
+            border-radius: 12px;
+            background: #f4f4f5;
+            color: #1c1c1e;
+            font: inherit;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .login-card .prayer-submit {
+            margin-top: 20px;
+        }
+
+        .login-card small {
+            display: block;
+            margin-top: 14px;
+            color: #6b7280;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .prayer-check {
+            display: flex !important;
+            align-items: flex-start;
+            gap: 10px;
+            margin-top: 16px !important;
+            font-weight: 500 !important;
+            font-size: 14px !important;
+        }
+
+        .prayer-check input {
+            width: 20px !important;
+            height: 20px;
+            flex: none;
+            margin-top: 1px;
+        }
+
+        .prayer-notice-banner {
+            margin-bottom: 14px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: #fff0e9;
+            color: var(--pine);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .prayer-status {
+            display: inline-block;
+            margin: 10px 0 0;
+            padding: 3px 10px;
+            border-radius: 999px;
+            background: #f4f4f5;
+            color: #6b7280;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
         @media (min-width: 521px) {
             .screen {
                 min-height: 100vh;

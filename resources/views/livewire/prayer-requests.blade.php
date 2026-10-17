@@ -37,6 +37,19 @@
                 <textarea id="prayer-request" wire:model="request" rows="6" placeholder="Share what's on your heart..."></textarea>
                 @error('request')<p class="prayer-error" role="alert">{{ $message }}</p>@enderror
 
+                @if ($usesWebsite)
+                    <label class="prayer-check">
+                        <input type="checkbox" wire:model="isPrivate">
+                        <span>Keep this private (only our pastoral team will see it)</span>
+                    </label>
+
+                    @if (! $signedIn)
+                        <small><a href="{{ route('login') }}" wire:navigate>Sign in</a> to keep track of your requests on any device.</small>
+                    @endif
+
+                    @if ($error)<p class="prayer-error" role="alert">{{ $error }}</p>@endif
+                @endif
+
                 <div class="prayer-notice">
                     <b>Privacy Notice:</b>
                     <p>Your prayer request will be visible to other church members. Please avoid sharing sensitive personal information.</p>
@@ -57,7 +70,11 @@
                 </ul>
             </section>
         @else
-            @php($visible = $tab === 'mine' ? array_filter($requests, fn ($item) => in_array($item['id'], $mine, true)) : $requests)
+            @php($visible = $tab === 'mine' ? $this->mineItems : $requests)
+
+            @if ($tab === 'mine' && $notice)
+                <p class="prayer-notice-banner" role="status">{{ $notice }}</p>
+            @endif
 
             @forelse ($visible as $item)
                 <article class="card prayer-card prayer-item" wire:key="prayer-{{ $item['id'] }}">
@@ -69,6 +86,13 @@
                         </div>
                         <span class="prayer-tag">{{ $item['category'] }}</span>
                     </div>
+                    @if ($tab === 'mine' && ($item['private'] ?? false))
+                        <span class="prayer-status">Private</span>
+                    @elseif ($tab === 'mine' && ($item['status'] ?? 'approved') === 'pending')
+                        <span class="prayer-status">Awaiting review</span>
+                    @elseif ($tab === 'mine' && ($item['status'] ?? 'approved') === 'rejected')
+                        <span class="prayer-status">Not published</span>
+                    @endif
                     <p>{{ $item['text'] }}</p>
                     <div class="prayer-item-foot">
                         <span class="prayer-count">
