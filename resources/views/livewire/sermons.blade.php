@@ -37,10 +37,10 @@
             @endforelse
         @else
         @forelse ($this->results as $sermon)
-            <article class="card sermon-card" wire:key="sermon-{{ $tab }}-{{ $sermon['id'] }}">
-                <div class="sermon-thumb" style="background: linear-gradient(135deg, {{ $sermon['color'] }}, #000)">
+            <{{ $usesWebsite ? 'a' : 'article' }} @if ($usesWebsite) href="{{ route('sermons.watch', $sermon['id']) }}" wire:navigate @endif class="card sermon-card" wire:key="sermon-{{ $tab }}-{{ $sermon['id'] }}">
+                <div class="sermon-thumb" style="{{ ($sermon['image'] ?? null) ? "background: linear-gradient(to top, rgba(0,0,0,.45), rgba(0,0,0,.05)), url('{$sermon['image']}') center / cover no-repeat, {$sermon['color']}" : "background: linear-gradient(135deg, {$sermon['color']}, #000)" }}">
                     <span class="sermon-play"><svg width="18" height="18" viewBox="0 0 24 24" fill="#4f46e5"><path d="M7 4l13 8-13 8z"/></svg></span>
-                    <span class="sermon-time">{{ $sermon['minutes'] }} min</span>
+                    @if ($sermon['minutes'])<span class="sermon-time">{{ $sermon['minutes'] }} min</span>@endif
                 </div>
                 <div class="sermon-info">
                     <h3>{{ $sermon['title'] }}</h3>
@@ -49,9 +49,10 @@
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 2v3M17 2v3M4 8h16M5 4h14a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/></svg>
                         {{ \Illuminate\Support\Carbon::parse($sermon['date'])->format('M j, Y') }}
                     </small>
-                    <span class="tag-pill">{{ $sermon['series'] }}</span>
+                    @if ($sermon['series'])<span class="tag-pill">{{ $sermon['series'] }}</span>@endif
+                    @if ($usesWebsite && $tab === 'popular')<small class="sermon-views">{{ number_format($sermon['views']) }} {{ Str::plural('view', $sermon['views']) }}</small>@endif
                 </div>
-            </article>
+            </{{ $usesWebsite ? 'a' : 'article' }}>
         @empty
             <p class="sermon-empty">No sermons found.</p>
         @endforelse

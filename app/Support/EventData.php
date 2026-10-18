@@ -57,6 +57,7 @@ class EventData
             'category' => $event['category'] ?: 'Events',
             'about' => $event['description'] ?? '',
             'image' => $event['image_url'] ?? null,
+            'requires_payment' => (bool) ($event['requires_payment'] ?? false),
         ];
     }
 }

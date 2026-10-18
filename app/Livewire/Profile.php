@@ -47,6 +47,9 @@ class Profile extends Component
         }
 
         $this->usesWebsite = true;
+        $stored = session('citylife.settings', []);
+        $this->preferences['pushNotifications'] = $stored['push_notifications'] ?? true;
+        $this->preferences['eventReminders'] = $stored['event_reminders'] ?? true;
 
         $member = MemberSession::member();
 
@@ -55,6 +58,9 @@ class Profile extends Component
         }
 
         $since = filled($member['member_since'] ?? null) ? strtotime($member['member_since']) : null;
+
+        $server = MemberSession::request('GET', 'me/preferences')['data'] ?? null;
+        $this->preferences['emailNewsletters'] = (bool) ($server['email_newsletters'] ?? false);
 
         $this->name = $member['name'];
         $this->memberSince = $since ? date('F Y', $since) : '';
@@ -81,9 +87,29 @@ class Profile extends Component
 
     public function togglePreference(string $preference): void
     {
-        if (array_key_exists($preference, $this->preferences)) {
-            $this->preferences[$preference] = ! $this->preferences[$preference];
+        if (! array_key_exists($preference, $this->preferences)) {
+            return;
         }
+
+        $this->preferences[$preference] = ! $this->preferences[$preference];
+
+        if (! $this->usesWebsite) {
+            return;
+        }
+
+        if ($preference === 'emailNewsletters') {
+            $result = MemberSession::request('PATCH', 'me/preferences', ['email_newsletters' => $this->preferences[$preference]]);
+
+            if (! $result['ok']) {
+                $this->preferences[$preference] = ! $this->preferences[$preference];
+            }
+
+            return;
+        }
+
+        $settings = session('citylife.settings', []);
+        $key = $preference === 'pushNotifications' ? 'push_notifications' : 'event_reminders';
+        session()->put('citylife.settings', [...$settings, $key => $this->preferences[$preference]]);
     }
 
     public function render()

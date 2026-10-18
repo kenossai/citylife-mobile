@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Support\SeriesData;
 use App\Support\SermonMedia;
+use App\Support\SermonViews;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -19,6 +20,7 @@ class SermonPlayer extends Component
         $this->series = SeriesData::find($slug) ?? abort(404);
         abort_unless(isset($this->series['messages'][$number - 1]), 404);
         $this->number = $number;
+        SermonViews::record($this->series['messages'][$number - 1]['id'] ?? null);
     }
 
     public function render()

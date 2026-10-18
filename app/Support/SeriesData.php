@@ -77,6 +77,7 @@ class SeriesData
             'color' => $series['color'] ?: '#e85d26',
             'image' => $series['thumbnail_url'] ?? null,
             'messages' => array_map(fn (array $sermon) => [
+                'id' => $sermon['id'] ?? null,
                 'title' => $sermon['title'],
                 'pastor' => $sermon['speaker'] ?: 'City Life Church',
                 'minutes' => self::minutes($sermon['duration'] ?? null),
@@ -86,7 +87,7 @@ class SeriesData
         ];
     }
 
-    private static function minutes(?string $duration): int
+    public static function minutes(?string $duration): int
     {
         if ($duration === null) {
             return 0;

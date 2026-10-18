@@ -2852,6 +2852,11 @@
             }
         }
 
+        .cta.pay-alt {
+            margin-top: 10px;
+            background: #003087;
+        }
+
         .player-hero[data-media] {
             height: 120px;
         }
@@ -3157,6 +3162,173 @@
         .course-nav span {
             color: #6b7280;
             font-weight: 500;
+        }
+
+        .sermon-views {
+            display: block;
+            margin-top: 8px;
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .sermon-scripture {
+            margin: 4px 0 8px;
+            color: var(--pine);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .sermon-description {
+            margin: 4px 0 12px;
+            line-height: 1.55;
+            font-size: 15px;
+        }
+
+        .group-card .course-callout {
+            margin-top: 12px;
+        }
+
+        .group-form {
+            display: grid;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .group-form input,
+        .group-form textarea,
+        .contact-form select {
+            display: block;
+            width: 100%;
+            padding: 12px 14px;
+            border: 0;
+            border-radius: 12px;
+            background: #f4f4f5;
+            color: #1c1c1e;
+            font: inherit;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .contact-form {
+            margin: 12px 16px 24px;
+            padding: 18px;
+        }
+
+        .contact-form label {
+            display: block;
+            margin: 14px 0 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .contact-form select {
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .give-methods {
+            display: grid;
+            gap: 10px;
+        }
+
+        .give-method {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: #fff;
+            color: var(--ink);
+            text-align: left;
+            font: inherit;
+        }
+
+        .give-method b {
+            display: block;
+            font-size: 16px;
+        }
+
+        .give-method span {
+            display: block;
+            margin-top: 4px;
+            font-size: 13px;
+            opacity: .75;
+        }
+
+        .give-method.primary {
+            border: 0;
+            color: #fff;
+            background: linear-gradient(135deg, var(--clay), var(--pine));
+        }
+
+        .give-bank {
+            display: grid;
+            gap: 0;
+            padding: 4px 16px;
+        }
+
+        .give-bank div {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--line);
+            font-size: 14px;
+        }
+
+        .give-bank div:last-child {
+            border-bottom: 0;
+        }
+
+        .give-bank span {
+            color: #6b7280;
+        }
+
+        .give-bank b {
+            text-align: right;
+            user-select: text;
+        }
+
+        .give-giftaid {
+            padding: 18px;
+        }
+
+        .give-giftaid p {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .give-giftaid form {
+            display: grid;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .give-giftaid input[type="text"],
+        .give-giftaid input[type="tel"],
+        .give-giftaid input[type="email"],
+        .give-giftaid input[type="date"] {
+            display: block;
+            width: 100%;
+            padding: 12px 14px;
+            border: 0;
+            border-radius: 12px;
+            background: #f4f4f5;
+            font: inherit;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .give-giftaid small {
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .give-date span {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 600;
         }
 
         @media (min-width: 521px) {

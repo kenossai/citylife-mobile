@@ -2,6 +2,8 @@
 
 namespace App\Livewire;
 
+use App\Support\ContentApi;
+use App\Support\MemberSession;
 use App\Support\NotificationData;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
@@ -20,48 +22,9 @@ class Placeholder extends Component
     #[Locked]
     public array $notifications = [];
 
-    /** @var array<int, int> */
-    #[Locked]
-    public array $completedReadings = [];
-
-    /** @var array<int, string> */
-    #[Locked]
-    public array $interestedGroups = [];
-
     /** @var array<string, bool> */
     #[Locked]
     public array $settings = [];
-
-    #[Locked]
-    public ?string $openFaq = null;
-
-    /** @var array<int, array{day: int, title: string, reference: string}> */
-    #[Locked]
-    public array $readings = [
-        ['day' => 1, 'title' => 'A life rooted in God', 'reference' => 'Psalm 1 · John 1:1–18'],
-        ['day' => 2, 'title' => 'The beginning', 'reference' => 'Genesis 1 · John 1:19–34'],
-        ['day' => 3, 'title' => 'A promise of hope', 'reference' => 'Psalm 2 · John 1:35–51'],
-        ['day' => 4, 'title' => 'Walking with wisdom', 'reference' => 'Proverbs 1 · John 2'],
-        ['day' => 5, 'title' => 'A heart of worship', 'reference' => 'Psalm 3 · John 3:1–21'],
-        ['day' => 6, 'title' => 'Trusting God', 'reference' => 'Proverbs 2 · John 3:22–36'],
-        ['day' => 7, 'title' => 'A new song', 'reference' => 'Psalm 4 · John 4:1–26'],
-    ];
-
-    /** @var array<int, array{id: string, name: string, description: string, icon: string}> */
-    #[Locked]
-    public array $groups = [
-        ['id' => 'bible-study', 'name' => 'Bible study', 'description' => 'Grow in Scripture and share questions together.', 'icon' => 'book'],
-        ['id' => 'young-adults', 'name' => 'Young adults', 'description' => 'Build friendships and explore faith in everyday life.', 'icon' => 'people'],
-        ['id' => 'prayer', 'name' => 'Prayer community', 'description' => 'Encourage one another and make space to pray.', 'icon' => 'heart'],
-    ];
-
-    /** @var array<int, array{id: string, question: string, answer: string}> */
-    #[Locked]
-    public array $faqs = [
-        ['id' => 'service', 'question' => 'When does the church meet?', 'answer' => 'Sunday worship is from 10:30 am to 12:00 pm. We would love to welcome you.'],
-        ['id' => 'location', 'question' => 'Where can I find City Life?', 'answer' => 'We meet at 1 South Parade, Shalesmoor, Sheffield, S3 8SS.'],
-        ['id' => 'online', 'question' => 'Can I watch online?', 'answer' => 'Visit the church website to find the latest online services and messages.'],
-    ];
 
     public function mount(string $title, string $page): void
     {
@@ -75,19 +38,19 @@ class Placeholder extends Component
             ],
             array_values(NotificationData::all()),
         );
-        $this->completedReadings = array_values(array_intersect(
-            session('citylife.completed_readings', []),
-            array_column($this->readings, 'day'),
-        ));
-        $this->interestedGroups = array_values(array_intersect(
-            session('citylife.interested_groups', []),
-            array_column($this->groups, 'id'),
-        ));
         $this->settings = array_replace([
             'push_notifications' => true,
             'event_reminders' => true,
             'email_updates' => false,
         ], session('citylife.settings', []));
+
+        if ($page === 'app-settings' && ContentApi::isConfigured() && MemberSession::check()) {
+            $server = MemberSession::request('GET', 'me/preferences')['data'] ?? null;
+
+            if ($server !== null) {
+                $this->settings['email_updates'] = (bool) $server['email_newsletters'];
+            }
+        }
     }
 
     public function markRead(string $id): void
@@ -115,26 +78,6 @@ class Placeholder extends Component
         $this->persistReadNotifications();
     }
 
-    public function toggleReading(int $day): void
-    {
-        if (! in_array($day, array_column($this->readings, 'day'), true)) {
-            return;
-        }
-
-        $this->completedReadings = $this->toggleValue($this->completedReadings, $day);
-        session()->put('citylife.completed_readings', $this->completedReadings);
-    }
-
-    public function toggleGroup(string $groupId): void
-    {
-        if (! in_array($groupId, array_column($this->groups, 'id'), true)) {
-            return;
-        }
-
-        $this->interestedGroups = $this->toggleValue($this->interestedGroups, $groupId);
-        session()->put('citylife.interested_groups', $this->interestedGroups);
-    }
-
     public function toggleSetting(string $setting): void
     {
         if (! array_key_exists($setting, $this->settings)) {
@@ -142,16 +85,18 @@ class Placeholder extends Component
         }
 
         $this->settings[$setting] = ! $this->settings[$setting];
-        session()->put('citylife.settings', $this->settings);
-    }
 
-    public function toggleFaq(string $faqId): void
-    {
-        if (! in_array($faqId, array_column($this->faqs, 'id'), true)) {
-            return;
+        if ($setting === 'email_updates' && ContentApi::isConfigured() && MemberSession::check()) {
+            $result = MemberSession::request('PATCH', 'me/preferences', ['email_newsletters' => $this->settings[$setting]]);
+
+            if (! $result['ok']) {
+                $this->settings[$setting] = ! $this->settings[$setting];
+
+                return;
+            }
         }
 
-        $this->openFaq = $this->openFaq === $faqId ? null : $faqId;
+        session()->put('citylife.settings', $this->settings);
     }
 
     /** @param array<int, int|string> $values

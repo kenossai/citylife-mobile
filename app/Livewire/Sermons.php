@@ -23,25 +23,27 @@ class Sermons extends Component
         ['id' => 4, 'title' => 'Grace That Restores', 'pastor' => 'Pastor Sarah Johnson', 'date' => '2025-12-08', 'series' => 'Prayer Life', 'minutes' => 40, 'views' => 1675, 'color' => '#4b5563'],
     ];
 
+    public bool $usesWebsite = false;
+
     public function mount(): void
     {
-        if (! ContentApi::isConfigured()) {
+        $this->usesWebsite = ContentApi::isConfigured();
+
+        if (! $this->usesWebsite) {
             return;
         }
 
-        $this->sermons = collect(SeriesData::all())
-            ->flatMap(fn (array $series) => array_map(fn (array $message) => [
-                'id' => 0,
-                'title' => $message['title'],
-                'pastor' => $message['pastor'],
-                'date' => $message['date'] ?? '1970-01-01',
-                'series' => $series['name'],
-                'minutes' => $message['minutes'],
-                'views' => 0,
-                'color' => $series['color'],
-            ], $series['messages']))
-            ->values()
-            ->all();
+        $this->sermons = array_map(fn (array $sermon): array => [
+            'id' => $sermon['id'],
+            'title' => $sermon['title'],
+            'pastor' => $sermon['speaker'] ?: 'City Life Church',
+            'date' => $sermon['preached_at'] ?? '1970-01-01',
+            'series' => $sermon['series']['title'] ?? '',
+            'minutes' => SeriesData::minutes($sermon['duration'] ?? null),
+            'views' => $sermon['views'] ?? 0,
+            'color' => $sermon['series']['color'] ?? '#292929',
+            'image' => $sermon['thumbnail_url'] ?? null,
+        ], ContentApi::get('sermons') ?? []);
     }
 
     public function showTab(string $tab): void

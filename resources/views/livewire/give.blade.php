@@ -5,51 +5,85 @@
     </header>
 
     <div class="give-body">
-        @if ($given)
-            <div class="card give-thanks">
-                <span class="give-check"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span>
-                <h2>Thank you!</h2>
-                <p>Your {{ strtolower(\App\Livewire\Give::FREQUENCIES[$frequency]) }} gift of <b>£{{ number_format($this->amount, 2) }}</b> to {{ $fund }} has been recorded.</p>
-                <button type="button" class="give-btn" wire:click="another">Give again</button>
+        @php($bank = array_filter($giving['bank'] ?? []))
+        @php($hasOnline = filled($giving['card_url'] ?? null) || filled($giving['paypal_url'] ?? null))
+
+        @if ($hasOnline)
+            <h2>Give online</h2>
+            <div class="give-methods">
+                @if ($giving['card_url'] ?? null)
+                    <button type="button" class="give-method primary" wire:click="openCard">
+                        <b>Give by card</b>
+                        <span>Secure card payment. Opens in a browser window.</span>
+                    </button>
+                @endif
+                @if ($giving['paypal_url'] ?? null)
+                    <button type="button" class="give-method" wire:click="openPayPal">
+                        <b>Give with PayPal</b>
+                        <span>Use your PayPal account or any debit or credit card.</span>
+                    </button>
+                @endif
             </div>
+        @endif
+
+        @if ($bank)
+            <h2>Bank transfer</h2>
+            <div class="card give-bank">
+                @foreach (['bank' => 'Bank', 'account_name' => 'Account name', 'sort_code' => 'Sort code', 'account_number' => 'Account number', 'reference' => 'Reference'] as $key => $label)
+                    @if ($bank[$key] ?? null)
+                        <div><span>{{ $label }}</span><b>{{ $bank[$key] }}</b></div>
+                    @endif
+                @endforeach
+            </div>
+        @endif
+
+        @if ($giving['in_person'] ?? null)
+            <h2>In person</h2>
+            <p class="give-note">{{ $giving['in_person'] }}</p>
+        @endif
+
+        @unless ($hasOnline || $bank || ($giving['in_person'] ?? null))
+            <p class="give-note">Giving details can't be loaded right now. Please check your connection and try again.</p>
+        @endunless
+
+        <h2>Gift Aid</h2>
+        @if ($giftAidSent)
+            <p class="course-callout" role="status">Thank you! Your Gift Aid declaration has been received.</p>
         @else
-            <form wire:submit="give">
-                <div class="give-freq" role="tablist">
-                    @foreach (\App\Livewire\Give::FREQUENCIES as $key => $label)
-                        <button type="button" role="tab" aria-selected="{{ $frequency === $key ? 'true' : 'false' }}" @class(['active' => $frequency === $key]) wire:click="$set('frequency', '{{ $key }}')">{{ $label }}</button>
-                    @endforeach
-                </div>
+            <div class="card give-giftaid">
+                <p>If you're a UK taxpayer, we can claim Gift Aid on your gifts, boosting them by 25% at no extra cost to you.</p>
 
-                <h2>Amount</h2>
-                <div class="give-amounts">
-                    @foreach (\App\Livewire\Give::AMOUNTS as $amount)
-                        <button type="button" @class(['active' => $preset === $amount]) wire:click="choose({{ $amount }})">£{{ $amount }}</button>
-                    @endforeach
-                </div>
-                <label class="give-custom">
-                    <span>£</span>
-                    <input type="number" inputmode="decimal" min="1" step="0.01" wire:model.live.debounce.300ms="custom" placeholder="Other amount" aria-label="Other amount">
-                </label>
-                @error('custom') <p class="give-error">{{ $message }}</p> @enderror
-
-                <h2>Give to</h2>
-                <div class="card give-funds">
-                    @foreach (\App\Livewire\Give::FUNDS as $name)
-                        <label wire:key="fund-{{ $loop->index }}">
-                            <input type="radio" wire:model.live="fund" value="{{ $name }}">
-                            <span>{{ $name }}</span>
-                            <i aria-hidden="true"></i>
+                @if ($giftAidOpen)
+                    <form wire:submit="submitGiftAid">
+                        <input type="text" wire:model="firstName" placeholder="First name" autocomplete="given-name">
+                        @error('firstName')<p class="give-error">{{ $message }}</p>@enderror
+                        <input type="text" wire:model="lastName" placeholder="Last name" autocomplete="family-name">
+                        @error('lastName')<p class="give-error">{{ $message }}</p>@enderror
+                        <input type="text" wire:model="address" placeholder="Address" autocomplete="street-address">
+                        @error('address')<p class="give-error">{{ $message }}</p>@enderror
+                        <input type="text" wire:model="postcode" placeholder="Postcode" autocomplete="postal-code" autocapitalize="characters">
+                        @error('postcode')<p class="give-error">{{ $message }}</p>@enderror
+                        <input type="tel" wire:model="phone" placeholder="Phone number" autocomplete="tel">
+                        @error('phone')<p class="give-error">{{ $message }}</p>@enderror
+                        <input type="email" wire:model="email" placeholder="Email address" autocomplete="email" inputmode="email" autocapitalize="off">
+                        @error('email')<p class="give-error">{{ $message }}</p>@enderror
+                        <input type="text" wire:model="giftAidCode" placeholder="Your Gift Aid code" autocapitalize="off">
+                        <small>For example: JS-tithe, AB-offering, CD-missions</small>
+                        @error('giftAidCode')<p class="give-error">{{ $message }}</p>@enderror
+                        <label class="give-date"><span>Declaration date</span><input type="date" wire:model="declarationDate"></label>
+                        @error('declarationDate')<p class="give-error">{{ $message }}</p>@enderror
+                        <label class="prayer-check">
+                            <input type="checkbox" wire:model="confirmed">
+                            <span>I confirm I have paid or will pay Income Tax and/or Capital Gains Tax at least equal to the tax City Life International will reclaim on my gifts.</span>
                         </label>
-                    @endforeach
-                </div>
-                @error('fund') <p class="give-error">{{ $message }}</p> @enderror
-
-                <button type="submit" class="give-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-8-5.3-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.7-8 11-8 11z"/></svg>
-                    Give £{{ number_format($this->amount, 2) }}
-                </button>
-                <p class="give-note">Secure giving. Payments are not processed in this preview.</p>
-            </form>
+                        @error('confirmed')<p class="give-error">{{ $message }}</p>@enderror
+                        @if ($error)<p class="give-error" role="alert">{{ $error }}</p>@endif
+                        <button type="submit" class="give-btn" wire:loading.attr="disabled">Submit declaration</button>
+                    </form>
+                @else
+                    <button type="button" class="give-btn" wire:click="toggleGiftAid">Make a Gift Aid declaration</button>
+                @endif
+            </div>
         @endif
     </div>
 </div>

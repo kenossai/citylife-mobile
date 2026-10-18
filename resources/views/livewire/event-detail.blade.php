@@ -25,8 +25,15 @@
             <p class="about">{{ $event['about'] }}</p>
         @endif
 
-        <button type="button" wire:click="toggleRegistration" @class(['cta', 'done' => $registered])>
-            {{ $registered ? "You're registered ✓" : 'Register' }}
-        </button>
+        @if ($event['requires_payment'] ?? false)
+            <h3>Pay for this event</h3>
+            <p class="about">Secure your place by completing your payment.</p>
+            @if ($giving['card_url'] ?? null)
+                <button type="button" class="cta" wire:click="openCard">Pay by card</button>
+            @endif
+            @if ($giving['paypal_url'] ?? null)
+                <button type="button" class="cta pay-alt" wire:click="openPayPal">Pay with PayPal</button>
+            @endif
+        @endif
     </div>
 </div>
