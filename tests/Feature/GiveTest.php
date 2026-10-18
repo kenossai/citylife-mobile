@@ -45,8 +45,8 @@ class GiveTest extends TestCase
     {
         $this->fakeChurch();
 
-        Livewire::test(Give::class)->call('openCard')->assertRedirect('https://pay.example/card');
-        Livewire::test(Give::class)->call('openPayPal')->assertRedirect('https://pay.example/paypal');
+        Livewire::test(Give::class)->call('openCard')->assertDispatched('open-external', url: 'https://pay.example/card');
+        Livewire::test(Give::class)->call('openPayPal')->assertDispatched('open-external', url: 'https://pay.example/paypal');
     }
 
     public function test_give_explains_when_nothing_can_be_loaded(): void

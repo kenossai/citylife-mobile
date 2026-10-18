@@ -2,15 +2,17 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\OpensExternalLinks;
 use App\Support\ContentApi;
 use App\Support\MemberSession;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
-use Native\Mobile\Facades\Browser;
 
 #[Layout('components.layouts.main')]
 class Profile extends Component
 {
+    use OpensExternalLinks;
+
     public string $name = 'John Doe';
 
     public string $memberSince = 'March 2023';
@@ -78,11 +80,11 @@ class Profile extends Component
         return null;
     }
 
-    public function openPasswordReset()
+    public function openPasswordReset(): void
     {
         $url = rtrim(config('services.citylife.url'), '/').'/member/forgot-password';
 
-        return Browser::inApp($url) ? null : redirect()->away($url);
+        $this->openExternal($url);
     }
 
     public function togglePreference(string $preference): void

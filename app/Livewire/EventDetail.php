@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\OpensExternalLinks;
 use App\Support\ChurchData;
 use App\Support\EventData;
 use Livewire\Attributes\Layout;
@@ -11,6 +12,8 @@ use Livewire\Component;
 #[Layout('components.layouts.main')]
 class EventDetail extends Component
 {
+    use OpensExternalLinks;
+
     public array $event = [];
 
     /** @var array<string, mixed> */
@@ -26,14 +29,14 @@ class EventDetail extends Component
         }
     }
 
-    public function openCard()
+    public function openCard(): void
     {
-        return ChurchData::open($this->giving['card_url'] ?? null);
+        $this->openExternal($this->giving['card_url'] ?? null);
     }
 
-    public function openPayPal()
+    public function openPayPal(): void
     {
-        return ChurchData::open($this->giving['paypal_url'] ?? null);
+        $this->openExternal($this->giving['paypal_url'] ?? null);
     }
 
     public function render()

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Livewire\Login;
 use App\Livewire\More;
 use App\Livewire\PrayerRequests;
+use App\Livewire\Profile;
 use App\Support\MemberSession;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -219,5 +220,25 @@ class MemberPrayerTest extends TestCase
         $this->signIn();
 
         $this->get(route('profile'))->assertSee('Change Password')->assertDontSee('Delete Account')->assertDontSee('Privacy Settings');
+    }
+
+    public function test_change_password_opens_the_websites_reset_page(): void
+    {
+        $this->signIn();
+        Http::fake(['site.test/api/v1/me/preferences' => Http::response(['data' => ['email_newsletters' => false, 'sms_updates' => false]])]);
+
+        Livewire::test(Profile::class)->call('openPasswordReset')->assertDispatched('open-external', url: 'https://site.test/member/forgot-password');
+    }
+
+    public function test_forgot_password_on_the_login_screen_opens_the_websites_reset_page(): void
+    {
+        Livewire::test(Login::class)->call('openForgotPassword')->assertDispatched('open-external', url: 'https://site.test/member/forgot-password');
+    }
+
+    public function test_only_web_addresses_are_ever_passed_to_the_page_to_open(): void
+    {
+        config(['services.citylife.url' => 'javascript:alert(1)//']);
+
+        Livewire::test(Login::class)->call('openForgotPassword')->assertNotDispatched('open-external');
     }
 }

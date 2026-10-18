@@ -134,7 +134,7 @@
             <span class="feature-kicker">PASS IT ON</span>
             <h2>Good things are better shared.</h2>
             <p>Invite someone to discover City Life and find a community in Sheffield.</p>
-            @if (function_exists('nativephp_call'))
+            @if ($native)
                 <button type="button" class="feature-primary" wire:click="share">
                     Share City Life
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m-5 5 5-5 5 5M5 14v5h14v-5"/></svg>

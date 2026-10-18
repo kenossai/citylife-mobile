@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\OpensExternalLinks;
 use App\Support\ChurchData;
 use App\Support\ContentApi;
 use App\Support\MemberSession;
@@ -14,6 +15,8 @@ use Native\Mobile\Facades\System;
 #[Layout('components.layouts.main')]
 class ChurchInfo extends Component
 {
+    use OpensExternalLinks;
+
     public const ENQUIRY_TYPES = [
         'general' => 'General',
         'prayer' => 'Prayer',
@@ -98,14 +101,14 @@ class ChurchInfo extends Component
         $this->reset('subject', 'message');
     }
 
-    public function openDirections()
+    public function openDirections(): void
     {
-        return ChurchData::open($this->church['directions_url'] ?? null);
+        $this->openExternal($this->church['directions_url'] ?? null);
     }
 
     public function share(): void
     {
-        if (! function_exists('nativephp_call')) {
+        if (! System::isMobile()) {
             return;
         }
 
@@ -115,13 +118,13 @@ class ChurchInfo extends Component
     public function shareUrl(): string
     {
         $share = $this->church['share'] ?? [];
-        $store = function_exists('nativephp_call') && System::isAndroid() ? ($share['android_url'] ?? null) : ($share['ios_url'] ?? null);
+        $store = System::isMobile() && System::isAndroid() ? ($share['android_url'] ?? null) : ($share['ios_url'] ?? null);
 
         return $store ?: ($share['ios_url'] ?? $share['android_url'] ?? rtrim((string) config('services.citylife.url'), '/') ?: route('home'));
     }
 
     public function render()
     {
-        return view('livewire.church-info');
+        return view('livewire.church-info', ['native' => System::isMobile()]);
     }
 }

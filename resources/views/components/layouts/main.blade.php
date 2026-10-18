@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="utf-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
     <title>{{ $title ?? 'City Life' }}</title>
     <style>
@@ -3363,6 +3364,77 @@
             }
 
             window.cityLifeNavigationInitialized = true;
+
+
+            const showOpenFailure = (url, detail) => {
+                document.getElementById('open-external-notice')?.remove();
+
+                const notice = document.createElement('div');
+                notice.id = 'open-external-notice';
+                notice.setAttribute('role', 'alert');
+                notice.style.cssText = 'position:fixed;left:16px;right:16px;bottom:calc(96px + env(safe-area-inset-bottom));z-index:60;padding:14px 16px;border-radius:14px;background:#1c1c1e;color:#fff;font-size:14px;line-height:1.4;box-shadow:0 8px 24px rgba(0,0,0,.3)';
+
+                const message = document.createElement('div');
+                message.textContent = "We couldn't open the page automatically.";
+
+                const link = document.createElement('a');
+                link.href = url;
+                link.target = '_blank';
+                link.rel = 'noopener';
+                link.textContent = 'Tap here to open it';
+                link.style.cssText = 'display:inline-block;margin-top:8px;color:#ffb18f;font-weight:600;text-decoration:underline';
+
+                const info = document.createElement('div');
+                info.textContent = detail;
+                info.style.cssText = 'margin-top:6px;font-size:11px;opacity:.6;word-break:break-all';
+
+                const close = document.createElement('button');
+                close.type = 'button';
+                close.textContent = 'Dismiss';
+                close.style.cssText = 'display:block;margin-top:8px;border:0;background:none;color:#fff;opacity:.7;font:inherit;font-size:12px';
+                close.addEventListener('click', () => notice.remove());
+
+                notice.append(message, link, info, close);
+                document.body.appendChild(notice);
+            };
+
+            window.addEventListener('open-external', async (event) => {
+                const url = event.detail?.url ?? event.detail?.[0]?.url;
+
+                if (!url) {
+                    return;
+                }
+
+                let detail = '';
+
+                try {
+                    const response = await fetch('/_native/api/call', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+                        },
+                        body: JSON.stringify({ method: 'Browser.OpenInApp', params: { url } }),
+                    });
+                    const text = await response.text();
+                    detail = `Browser.OpenInApp ${response.status}: ${text.slice(0, 160)}`;
+
+                    let result = null;
+                    try {
+                        result = JSON.parse(text);
+                    } catch (error) {
+                        //
+                    }
+
+                    if (response.ok && result?.status !== 'error' && result?.data?.success !== false) {
+                        return;
+                    }
+                } catch (error) {
+                    detail = `Browser.OpenInApp failed: ${error.message}`;
+                }
+
+                showOpenFailure(url, detail);
+            });
 
             const currentPath = () => `${window.location.pathname}${window.location.search}`;
             const storageKey = 'cityLifeNavigationStack';

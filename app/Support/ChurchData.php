@@ -2,9 +2,6 @@
 
 namespace App\Support;
 
-use Illuminate\Http\RedirectResponse;
-use Native\Mobile\Facades\Browser;
-
 class ChurchData
 {
     /**
@@ -40,17 +37,5 @@ class ChurchData
             ],
             'share' => ['ios_url' => null, 'android_url' => null, 'message' => 'Join me at City Life International Church in Sheffield.'],
         ];
-    }
-
-    /**
-     * Open a web page in the in-app browser, or navigate to it when running outside the app.
-     */
-    public static function open(?string $url): ?RedirectResponse
-    {
-        if (blank($url) || ! preg_match('~^https?://~i', $url)) {
-            return null;
-        }
-
-        return Browser::inApp($url) ? null : redirect()->away($url);
     }
 }
