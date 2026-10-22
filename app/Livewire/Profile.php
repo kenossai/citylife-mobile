@@ -87,6 +87,13 @@ class Profile extends Component
         $this->openExternal($url);
     }
 
+    public function signOutEverywhere()
+    {
+        MemberSession::logoutEverywhere();
+
+        return $this->redirectRoute('home', navigate: true);
+    }
+
     public function togglePreference(string $preference): void
     {
         if (! array_key_exists($preference, $this->preferences)) {

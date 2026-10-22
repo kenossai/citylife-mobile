@@ -3332,6 +3332,27 @@
             font-weight: 600;
         }
 
+        .home-empty {
+            padding: 18px 4px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        #pull-refresh-indicator {
+            position: fixed;
+            top: calc(env(safe-area-inset-top) + 10px);
+            left: 50%;
+            z-index: 70;
+            padding: 8px 16px;
+            border-radius: 999px;
+            background: #1c1c1e;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            transform: translateX(-50%);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, .25);
+        }
+
         @media (min-width: 521px) {
             .screen {
                 min-height: 100vh;
@@ -3436,7 +3457,66 @@
                 showOpenFailure(url, detail);
             });
 
-            const currentPath = () => `${window.location.pathname}${window.location.search}`;
+            const pullState = { startY: null, triggered: false };
+
+            const refreshContent = () => {
+                if (document.getElementById('pull-refresh-indicator')) {
+                    return;
+                }
+
+                const indicator = document.createElement('div');
+                indicator.id = 'pull-refresh-indicator';
+                indicator.setAttribute('role', 'status');
+                indicator.textContent = 'Refreshing…';
+                document.body.appendChild(indicator);
+
+                const url = new URL(window.location.href);
+                url.searchParams.set('refresh', '1');
+
+                window.Livewire.navigate(url.pathname + url.search);
+            };
+
+            document.addEventListener('touchstart', (event) => {
+                const blocked = event.target.closest?.('input, textarea, select, iframe, video, audio, .home-series, .more-panel.open, [contenteditable]');
+
+                pullState.triggered = false;
+                pullState.startY = event.touches.length === 1 && window.scrollY <= 0 && !blocked && !document.querySelector('.more-panel.open')
+                    ? event.touches[0].clientY
+                    : null;
+            }, { passive: true });
+
+            document.addEventListener('touchmove', (event) => {
+                if (pullState.startY === null || pullState.triggered) {
+                    return;
+                }
+
+                if (event.touches[0].clientY - pullState.startY > 120 && window.scrollY <= 0) {
+                    pullState.triggered = true;
+                    refreshContent();
+                }
+            }, { passive: true });
+
+            document.addEventListener('touchend', () => {
+                pullState.startY = null;
+            }, { passive: true });
+
+            document.addEventListener('livewire:navigated', () => {
+                document.getElementById('pull-refresh-indicator')?.remove();
+
+                const url = new URL(window.location.href);
+
+                if (url.searchParams.has('refresh')) {
+                    url.searchParams.delete('refresh');
+                    window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash);
+                }
+            });
+
+            const currentPath = () => {
+                const url = new URL(window.location.href);
+                url.searchParams.delete('refresh');
+
+                return url.pathname + url.search;
+            };
             const storageKey = 'cityLifeNavigationStack';
             let reopenMore = false;
             let direction = 'forward';

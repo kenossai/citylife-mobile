@@ -24,6 +24,10 @@ class NotificationData
             ])->all();
         }
 
+        if (ContentApi::isConfigured()) {
+            return [];
+        }
+
         return [
             'sunday-service' => [
                 'id' => 'sunday-service',

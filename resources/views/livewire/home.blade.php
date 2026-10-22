@@ -40,6 +40,7 @@
             @endforeach
         </div>
 
+        @if ($series)
         <div class="section-head">
             <h3>Latest Series</h3>
             <a href="{{ route('sermons') }}" wire:navigate>View All</a>
@@ -54,13 +55,14 @@
                 </a>
             @endforeach
         </div>
+        @endif
 
         <div class="section-head">
             <h3>Upcoming Events</h3>
             <a href="{{ route('events') }}" wire:navigate>View All</a>
         </div>
 
-        @foreach ($events as $event)
+        @forelse ($events as $event)
             <a href="{{ route('events.show', $event['id']) }}" wire:navigate class="card event">
                 <div class="date"><small>{{ $event['month'] }}</small><b>{{ $event['day'] }}</b></div>
                 <div>
@@ -68,6 +70,8 @@
                     <p>{{ $event['time'] }} &nbsp;•&nbsp; {{ $event['place'] }}</p>
                 </div>
             </a>
-        @endforeach
+        @empty
+            <p class="home-empty">No upcoming events right now. Check back soon.</p>
+        @endforelse
     </div>
 </div>

@@ -50,6 +50,10 @@ class Home extends Component
 
         $home = ContentApi::get('home');
 
+        if ($home === null && ContentApi::isConfigured()) {
+            $this->isLive = false;
+        }
+
         if ($home !== null) {
             $live = $home['live'] ?? null;
             $this->isLive = filled($live);

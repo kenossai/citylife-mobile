@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Livewire\Home;
+use App\Support\ContentApi;
 use App\Support\EventData;
 use App\Support\NotificationData;
 use App\Support\SeriesData;
@@ -83,7 +84,7 @@ class ContentApiTest extends TestCase
 
         $this->assertSame('Sunday Service', EventData::all()[1]['title']);
 
-        Cache::forget('citylife-api:events:fresh');
+        ContentApi::forget('events');
 
         $this->assertSame('Sunday Service', EventData::all()[1]['title']);
     }

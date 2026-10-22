@@ -10,6 +10,8 @@ class ContentApi
 {
     private const FRESH_SECONDS = 300;
 
+    private const VERSION_KEY = 'citylife-api:version';
+
     public static function isConfigured(): bool
     {
         return filled(config('services.citylife.url'));
@@ -28,7 +30,7 @@ class ContentApi
 
         $key = 'citylife-api:'.$path;
 
-        if (is_array($fresh = Cache::get($key.':fresh'))) {
+        if (is_array($fresh = Cache::get(self::freshKey($path)))) {
             return $fresh;
         }
 
@@ -38,7 +40,7 @@ class ContentApi
                 ->get(rtrim(config('services.citylife.url'), '/').'/api/v1/'.ltrim($path, '/'));
 
             if ($response->successful() && is_array($data = $response->json('data'))) {
-                Cache::put($key.':fresh', $data, $freshSeconds);
+                Cache::put(self::freshKey($path), $data, $freshSeconds);
                 Cache::forever($key.':last', $data);
 
                 return $data;
@@ -54,7 +56,25 @@ class ContentApi
 
     public static function forget(string $path): void
     {
-        Cache::forget('citylife-api:'.$path.':fresh');
+        Cache::forget(self::freshKey($path));
+    }
+
+    /**
+     * Make every cached page of content count as stale so the next read asks the website again. The last good copies stay for offline use.
+     */
+    public static function refresh(): void
+    {
+        Cache::forever(self::VERSION_KEY, self::version() + 1);
+    }
+
+    private static function version(): int
+    {
+        return (int) Cache::get(self::VERSION_KEY, 1);
+    }
+
+    private static function freshKey(string $path): string
+    {
+        return 'citylife-api:'.$path.':fresh:'.self::version();
     }
 
     /**

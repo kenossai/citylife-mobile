@@ -14,6 +14,10 @@ class EventData
             return collect($remote)->mapWithKeys(fn (array $event) => [$event['id'] => self::fromApi($event)])->all();
         }
 
+        if (ContentApi::isConfigured()) {
+            return [];
+        }
+
         $about = 'Join us for a time of worship, teaching and fellowship. Everyone is welcome, so bring a friend and come expecting.';
 
         return [
@@ -51,9 +55,9 @@ class EventData
             'date' => $startsAt->format('l, j F'),
             'title' => $event['title'],
             'time' => $startsAt->format('g:i A'),
-            'end' => '',
+            'end' => filled($event['ends_at'] ?? null) ? Carbon::parse($event['ends_at'])->format('g:i A') : '',
             'place' => $event['location'] ?: 'City Life Church',
-            'address' => '',
+            'address' => (string) ($event['address'] ?? ''),
             'category' => $event['category'] ?: 'Events',
             'about' => $event['description'] ?? '',
             'image' => $event['image_url'] ?? null,

@@ -15,6 +15,10 @@ class SeriesData
             return collect($remote)->mapWithKeys(fn (array $series) => [$series['slug'] => self::fromApi($series)])->all();
         }
 
+        if (ContentApi::isConfigured()) {
+            return [];
+        }
+
         $series = [
             [
                 'name' => 'Faith Journey',

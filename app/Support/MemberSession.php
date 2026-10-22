@@ -75,6 +75,18 @@ class MemberSession
         self::forget();
     }
 
+    /**
+     * Sign out on every device this member is signed in on, including this one.
+     */
+    public static function logoutEverywhere(): void
+    {
+        if ($token = self::token()) {
+            ContentApi::send('POST', 'auth/logout-all', [], $token);
+        }
+
+        self::forget();
+    }
+
     public static function forget(): void
     {
         SecureStorage::set(self::TOKEN_KEY, null);
