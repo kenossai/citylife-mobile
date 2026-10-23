@@ -1,3 +1,4 @@
+@php($welcomeBackground = base64_encode((string) @file_get_contents(public_path('images/splash-bg.jpg'))))
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -25,7 +26,7 @@
             overflow: hidden;
             background:
                 linear-gradient(to bottom, rgba(15,23,42,.35) 0%, rgba(15,23,42,0) 35%, rgba(30,64,175,.55) 100%),
-                url('/images/splash-bg.jpg') center / cover no-repeat,
+                url('data:image/jpeg;base64,{{ $welcomeBackground }}') center / cover no-repeat,
                 linear-gradient(to bottom, #1f2a3d 0%, #4a4a63 40%, #7f8fb0 65%, #1e40af 100%);
         }
         .skip {

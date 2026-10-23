@@ -54,4 +54,11 @@ class NavigationTest extends TestCase
             ->assertSee(route('small-groups'), false)
             ->assertSee('Faith Journey');
     }
+
+    public function test_the_welcome_screen_embeds_the_church_photo_in_the_page(): void
+    {
+        $photo = base64_encode(file_get_contents(public_path('images/splash-bg.jpg')));
+
+        $this->get(route('splash'))->assertOk()->assertSee('data:image/jpeg;base64,'.$photo, false);
+    }
 }
