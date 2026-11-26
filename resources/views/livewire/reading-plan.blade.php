@@ -34,11 +34,19 @@
                     @php($done = in_array($reading['day'], $completed, true))
                     <article class="feature-row reading-row" wire:key="reading-{{ $reading['day'] }}">
                         <span @class(['reading-day', 'is-complete' => $done])>{{ $done ? '✓' : str_pad((string) $reading['day'], 2, '0', STR_PAD_LEFT) }}</span>
-                        <div class="feature-row-copy">
-                            <small>DAY {{ $reading['day'] }}</small>
-                            <h3>{{ $reading['title'] }}</h3>
-                            <p>{{ $reading['reference'] }}</p>
-                        </div>
+                        @if ($usesWebsite)
+                            <a class="feature-row-copy reading-link" href="{{ route('bible-reading-plan.day', $reading['day']) }}" wire:navigate>
+                                <small>DAY {{ $reading['day'] }}</small>
+                                <h3>{{ $reading['title'] }}</h3>
+                                <p>{{ $reading['reference'] }}</p>
+                            </a>
+                        @else
+                            <div class="feature-row-copy">
+                                <small>DAY {{ $reading['day'] }}</small>
+                                <h3>{{ $reading['title'] }}</h3>
+                                <p>{{ $reading['reference'] }}</p>
+                            </div>
+                        @endif
                         <button type="button" class="feature-check" aria-pressed="{{ $done ? 'true' : 'false' }}" wire:click="toggle({{ $reading['day'] }})">
                             {{ $done ? 'Completed' : 'Done' }}
                         </button>

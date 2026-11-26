@@ -12,6 +12,13 @@ class ContentApi
 
     private const VERSION_KEY = 'citylife-api:version';
 
+    private const DOWN_KEY = 'citylife-api:down';
+
+    /** How long to stop asking a website that did not answer, so every screen does not wait for it again. */
+    private const DOWN_SECONDS = 30;
+
+    private const CONNECT_TIMEOUT_SECONDS = 2;
+
     public static function isConfigured(): bool
     {
         return filled(config('services.citylife.url'));
@@ -34,19 +41,26 @@ class ContentApi
             return $fresh;
         }
 
-        try {
-            $response = Http::timeout(5)
-                ->acceptJson()
-                ->get(rtrim(config('services.citylife.url'), '/').'/api/v1/'.ltrim($path, '/'));
+        if (! self::isDown()) {
+            try {
+                $response = Http::connectTimeout(self::CONNECT_TIMEOUT_SECONDS)
+                    ->timeout(5)
+                    ->acceptJson()
+                    ->get(rtrim(config('services.citylife.url'), '/').'/api/v1/'.ltrim($path, '/'));
 
-            if ($response->successful() && is_array($data = $response->json('data'))) {
-                Cache::put(self::freshKey($path), $data, $freshSeconds);
-                Cache::forever($key.':last', $data);
+                if ($response->successful() && is_array($data = $response->json('data'))) {
+                    Cache::put(self::freshKey($path), $data, $freshSeconds);
+                    Cache::forever($key.':last', $data);
 
-                return $data;
+                    return $data;
+                }
+
+                if ($response->serverError()) {
+                    self::markDown();
+                }
+            } catch (Throwable) {
+                self::markDown();
             }
-        } catch (Throwable) {
-            //
         }
 
         $last = Cache::get($key.':last');
@@ -65,6 +79,17 @@ class ContentApi
     public static function refresh(): void
     {
         Cache::forever(self::VERSION_KEY, self::version() + 1);
+        Cache::forget(self::DOWN_KEY);
+    }
+
+    public static function isDown(): bool
+    {
+        return Cache::has(self::DOWN_KEY);
+    }
+
+    private static function markDown(): void
+    {
+        Cache::put(self::DOWN_KEY, true, self::DOWN_SECONDS);
     }
 
     private static function version(): int
@@ -89,8 +114,12 @@ class ContentApi
             return ['ok' => false, 'status' => 0, 'data' => null, 'message' => 'The church website is not configured.', 'body' => null];
         }
 
+        if ($method === 'GET' && self::isDown()) {
+            return ['ok' => false, 'status' => 0, 'data' => null, 'message' => 'We could not reach the church. Please check your connection and try again.', 'body' => null];
+        }
+
         try {
-            $request = Http::timeout(8)->acceptJson();
+            $request = Http::connectTimeout(self::CONNECT_TIMEOUT_SECONDS)->timeout(8)->acceptJson();
 
             if ($token) {
                 $request = $request->withToken($token);
@@ -98,6 +127,8 @@ class ContentApi
 
             $response = $request->send($method, rtrim(config('services.citylife.url'), '/').'/api/v1/'.ltrim($path, '/'), $method === 'GET' ? ['query' => $payload] : ['json' => $payload]);
         } catch (Throwable) {
+            self::markDown();
+
             return ['ok' => false, 'status' => 0, 'data' => null, 'message' => 'We could not reach the church. Please check your connection and try again.', 'body' => null];
         }
 

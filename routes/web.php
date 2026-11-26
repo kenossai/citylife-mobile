@@ -1,5 +1,9 @@
 <?php
 
+use App\Livewire\BibleBooks;
+use App\Livewire\BibleChapters;
+use App\Livewire\BibleReader;
+use App\Livewire\CertificateDetail;
 use App\Livewire\ChurchInfo;
 use App\Livewire\CourseDetail;
 use App\Livewire\CourseLesson;
@@ -12,6 +16,7 @@ use App\Livewire\Login;
 use App\Livewire\Placeholder;
 use App\Livewire\PrayerRequests;
 use App\Livewire\Profile;
+use App\Livewire\ReadingPassage;
 use App\Livewire\ReadingPlan;
 use App\Livewire\SeriesDetail;
 use App\Livewire\SermonPlayer;
@@ -31,9 +36,14 @@ Route::get('/sermons', Sermons::class)->name('sermons');
 Route::get('/sermons/series/{slug}', SeriesDetail::class)->name('sermons.series');
 Route::get('/sermons/series/{slug}/{number}', SermonPlayer::class)->whereNumber('number')->name('sermons.play');
 Route::get('/course', Courses::class)->name('course');
+Route::get('/course/certificate/{enrollmentId}', CertificateDetail::class)->whereNumber('enrollmentId')->name('course.certificate');
 Route::get('/course/{slug}', CourseDetail::class)->name('course.show');
 Route::get('/course/{slug}/lessons/{lessonSlug}', CourseLesson::class)->name('course.lesson');
+Route::get('/bible', BibleBooks::class)->name('bible');
+Route::get('/bible/{book}', BibleChapters::class)->where('book', '[A-Za-z0-9]{3}')->name('bible.book');
+Route::get('/bible/{book}/{chapter}', BibleReader::class)->where('book', '[A-Za-z0-9]{3}')->whereNumber('chapter')->name('bible.read');
 Route::get('/bible-reading-plan', ReadingPlan::class)->name('bible-reading-plan');
+Route::get('/bible-reading-plan/{day}', ReadingPassage::class)->whereNumber('day')->name('bible-reading-plan.day');
 Route::get('/small-groups', SmallGroups::class)->name('small-groups');
 Route::get('/sermons/watch/{id}', SermonView::class)->whereNumber('id')->name('sermons.watch');
 Route::get('/give', Give::class)->name('give');

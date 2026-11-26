@@ -1,5 +1,10 @@
 <div>
-    <h1 class="page-title">Events</h1>
+    <div class="tab-head">
+        <a href="{{ route('home') }}" wire:navigate data-app-back class="tab-back" aria-label="Back">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+        </a>
+        <h1 class="page-title">Events</h1>
+    </div>
 
     <div class="chips">
         @foreach ($categories as $name)

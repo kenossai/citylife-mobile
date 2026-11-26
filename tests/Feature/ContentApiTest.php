@@ -44,7 +44,7 @@ class ContentApiTest extends TestCase
             'starts_at' => '2026-11-14T19:00:00+00:00',
         ]]])]);
 
-        $event = EventData::find(7) ?? EventData::all()[7];
+        $event = EventData::all()[7];
 
         $this->assertSame('Youth Night', $event['title']);
         $this->assertSame('Nov', $event['month']);

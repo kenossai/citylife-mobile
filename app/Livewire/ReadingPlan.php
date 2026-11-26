@@ -14,12 +14,16 @@ class ReadingPlan extends Component
 
     public bool $available = true;
 
+    public bool $usesWebsite = false;
+
     /** @var array<int, int> */
     public array $completed = [];
 
     public function mount(): void
     {
-        if (ContentApi::isConfigured()) {
+        $this->usesWebsite = ContentApi::isConfigured();
+
+        if ($this->usesWebsite) {
             $plan = ContentApi::get('reading-plan');
 
             $this->available = $plan !== null || ContentApi::get('church') !== null;

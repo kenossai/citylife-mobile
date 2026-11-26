@@ -38,6 +38,9 @@ class NavigationTest extends TestCase
         $this->get(route('sermons.series', 'faith-journey'))->assertSee('data-app-back', false);
         $this->get(route('course'))->assertSee('data-app-back', false);
         $this->get(route('prayer-requests'))->assertSee('data-app-back', false);
+        $this->get(route('events'))->assertSee('data-app-back', false);
+        $this->get(route('sermons'))->assertSee('data-app-back', false);
+        $this->get(route('give'))->assertSee('data-app-back', false);
     }
 
     public function test_more_menu_links_preserve_the_menu_as_a_back_destination(): void

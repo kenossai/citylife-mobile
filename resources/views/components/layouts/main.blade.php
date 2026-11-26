@@ -1,10 +1,45 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="{{ \App\Support\Theme::preference() }}" data-resolved="{{ \App\Support\Theme::resolved() }}">
 
 <head>
     <meta charset="utf-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <script>
+        (() => {
+            const root = document.documentElement;
+            const media = window.matchMedia('(prefers-color-scheme: dark)');
+
+            const apply = () => {
+                const preference = root.getAttribute('data-theme') || 'system';
+                const resolved = preference === 'system' ? (media.matches ? 'dark' : 'light') : preference;
+
+                root.setAttribute('data-resolved', resolved);
+                document.cookie = `cl_resolved=${resolved}; path=/; max-age=31536000; SameSite=Lax`;
+                syncBible();
+            };
+
+            const syncBible = () => {
+                const resolved = root.getAttribute('data-resolved') || 'light';
+
+                document.querySelectorAll('[data-yv-sdk]').forEach((element) => {
+                    if (element.getAttribute('data-yv-theme') !== resolved) {
+                        element.setAttribute('data-yv-theme', resolved);
+                    }
+                });
+            };
+
+            apply();
+            new MutationObserver(syncBible).observe(root, { childList: true, subtree: true });
+            media.addEventListener?.('change', apply);
+            document.addEventListener('livewire:navigated', apply);
+            window.addEventListener('theme-changed', (event) => {
+                root.setAttribute('data-theme', event.detail?.theme ?? event.detail?.[0]?.theme ?? 'system');
+                apply();
+            });
+        })();
+    </script>
     <title>{{ $title ?? 'City Life' }}</title>
     <style>
         * {
@@ -3353,6 +3388,276 @@
             box-shadow: 0 6px 18px rgba(0, 0, 0, .25);
         }
 
+        .reading-reference {
+            margin: 4px 2px 12px;
+            color: var(--pine);
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .reading-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .passage-text {
+            padding: 18px;
+            font-size: 17px;
+            line-height: 1.7;
+        }
+
+        .passage-text h2 {
+            margin: 0 0 8px;
+            font-size: 16px;
+        }
+
+        .passage-text h2:not(:first-child) {
+            margin-top: 22px;
+        }
+
+        .passage-text p {
+            margin: 0;
+            overflow-wrap: anywhere;
+        }
+
+        .passage-text sup {
+            margin: 0 3px 0 6px;
+            color: var(--pine);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .passage-credit {
+            margin: 10px 4px 16px;
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .passage-done {
+            margin-top: 12px;
+        }
+
+        .certificate-card {
+            padding: 28px 20px;
+            text-align: center;
+            border: 2px solid var(--clay);
+        }
+
+        .certificate-card h2 {
+            margin: 6px 0 12px;
+            font-size: 26px;
+        }
+
+        .certificate-card h3 {
+            margin: 6px 0 14px;
+            font-size: 19px;
+            color: var(--pine);
+        }
+
+        .certificate-lead {
+            margin-top: 14px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .certificate-grade {
+            display: inline-block;
+            margin-bottom: 16px;
+            padding: 6px 16px;
+            border-radius: 999px;
+            background: #fff0e9;
+            color: var(--pine);
+            font-weight: 700;
+        }
+
+        .certificate-card dl {
+            display: grid;
+            gap: 10px;
+            margin-top: 8px;
+            padding-top: 14px;
+            border-top: 1px solid var(--line);
+            text-align: left;
+        }
+
+        .certificate-card dl div {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 14px;
+        }
+
+        .certificate-card dt {
+            color: #6b7280;
+        }
+
+        .bible-tools {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin: 4px 0 12px;
+        }
+
+        .bible-tools select,
+        .bible-tools input {
+            flex: 1;
+            min-width: 0;
+            padding: 11px 12px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: #fff;
+            color: var(--ink);
+            font: inherit;
+            font-size: 15px;
+        }
+
+        .bible-version-name {
+            flex: 1;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .bible-continue {
+            display: block;
+            margin-bottom: 12px;
+            padding: 16px;
+            border-radius: 16px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--clay), var(--pine));
+        }
+
+        .bible-continue small {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            opacity: .85;
+        }
+
+        .bible-continue b {
+            display: block;
+            margin-top: 4px;
+            font-size: 20px;
+        }
+
+        .bible-chapters {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .bible-chapters a {
+            display: grid;
+            place-items: center;
+            height: 52px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: #fff;
+            font-weight: 600;
+        }
+
+        .bible-size {
+            display: flex;
+            gap: 6px;
+        }
+
+        .bible-size button {
+            padding: 9px 12px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: #fff;
+            color: var(--ink);
+            font: inherit;
+            font-weight: 700;
+        }
+
+        .bible-page {
+            padding: 18px;
+            overflow-wrap: anywhere;
+        }
+
+        /* YouVersion's poetry lines hang their first line to the left; give them room so they stay inside the card. */
+        .bible-page [class^="q"],
+        .bible-page [class*=" q"] {
+            padding-left: 1.3em;
+        }
+
+        .theme-choice {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            padding: 4px;
+            border-radius: 14px;
+            background: #eceef0;
+        }
+
+        .theme-choice button {
+            padding: 11px 8px;
+            border: 0;
+            border-radius: 11px;
+            background: transparent;
+            color: var(--muted);
+            font: inherit;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .theme-choice button.active {
+            background: #fff;
+            color: var(--ink);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .12);
+        }
+
+        .tab-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: calc(env(safe-area-inset-top) + 14px) 16px 6px;
+        }
+
+        .tab-head .page-title {
+            padding: 0;
+        }
+
+        .tab-title-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tab-back {
+            display: grid;
+            place-items: center;
+            flex: none;
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: var(--paper);
+            color: var(--ink);
+        }
+
+        .give-head .tab-back,
+        .sermon-head .tab-back {
+            background: rgba(255, 255, 255, .16);
+            border-color: transparent;
+            color: inherit;
+        }
+
+        .player-watch {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #1c1c1e, #3a3a3c);
+            color: #fff;
+            font-weight: 700;
+        }
+
         @media (min-width: 521px) {
             .screen {
                 min-height: 100vh;
@@ -3366,6 +3671,9 @@
         body.keyboard-visible .navbar {
             display: none;
         }
+    </style>
+    <style>
+        @include('components.layouts.dark-theme')
     </style>
 </head>
 

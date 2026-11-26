@@ -59,6 +59,15 @@
             <h2>Your preferences</h2>
             <p>Choose how City Life keeps you in the loop.</p>
         </section>
+        <section class="feature-section" aria-label="Appearance">
+            <div class="feature-section-heading"><div><span class="feature-kicker">APPEARANCE</span><h2>Theme</h2></div></div>
+            <div class="theme-choice" role="radiogroup" aria-label="Theme">
+                @foreach (['system' => 'System', 'light' => 'Light', 'dark' => 'Dark'] as $value => $label)
+                    <button type="button" role="radio" aria-checked="{{ $theme === $value ? 'true' : 'false' }}" @class(['active' => $theme === $value]) wire:click="setTheme('{{ $value }}')" wire:key="theme-{{ $value }}">{{ $label }}</button>
+                @endforeach
+            </div>
+            <p class="feature-footnote">{{ $theme === 'system' ? 'Follows your phone\'s light or dark setting.' : 'Always '.$theme.', whatever your phone is set to.' }}</p>
+        </section>
         <section class="feature-list settings-list" aria-label="Notification preferences">
             @foreach ($settingLabels as $key => [$label, $description])
                 <div class="setting-row" wire:key="setting-{{ $key }}">

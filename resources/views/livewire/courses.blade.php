@@ -44,13 +44,14 @@
         @elseif ($tab === 'certificates')
             <div class="feature-list">
                 @forelse ($certificates as $certificate)
-                    <article class="feature-row course-row" wire:key="certificate-{{ $certificate['enrollment_id'] }}">
+                    <a href="{{ route('course.certificate', $certificate['enrollment_id']) }}" wire:navigate class="feature-row course-row" wire:key="certificate-{{ $certificate['enrollment_id'] }}">
                         <div class="feature-row-copy">
                             <h3>{{ $certificate['course_title'] }}</h3>
                             <p>{{ $certificate['grade'] ? $certificate['grade'].' · ' : '' }}Completed {{ date('j F Y', strtotime($certificate['issued_at'])) }}</p>
                             @if ($certificate['instructor'])<small>{{ $certificate['instructor'] }}</small>@endif
                         </div>
-                    </article>
+                        <svg class="course-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+                    </a>
                 @empty
                     <p class="feature-footnote">Complete a course to earn your certificate.</p>
                 @endforelse

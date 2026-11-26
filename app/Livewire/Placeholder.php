@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Support\ContentApi;
 use App\Support\MemberSession;
 use App\Support\NotificationData;
+use App\Support\Theme;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
@@ -26,8 +27,11 @@ class Placeholder extends Component
     #[Locked]
     public array $settings = [];
 
+    public string $theme = 'system';
+
     public function mount(string $title, string $page): void
     {
+        $this->theme = Theme::preference();
         $this->title = $title;
         $this->page = $page;
         $readIds = session('citylife.read_notifications', []);
@@ -76,6 +80,16 @@ class Placeholder extends Component
         }
 
         $this->persistReadNotifications();
+    }
+
+    public function setTheme(string $theme): void
+    {
+        if (! Theme::set($theme)) {
+            return;
+        }
+
+        $this->theme = $theme;
+        $this->dispatch('theme-changed', theme: $theme);
     }
 
     public function toggleSetting(string $setting): void

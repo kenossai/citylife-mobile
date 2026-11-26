@@ -72,7 +72,7 @@ class SeriesData
      * @param  array<string, mixed>  $series
      * @return array<string, mixed>
      */
-    private static function fromApi(array $series): array
+    public static function fromApi(array $series): array
     {
         return [
             'name' => $series['title'],
@@ -88,6 +88,25 @@ class SeriesData
                 'date' => $sermon['preached_at'] ?? null,
                 'video_url' => $sermon['video_url'] ?? null,
             ], $series['sermons'] ?? []),
+        ];
+    }
+
+    /**
+     * A series as the home screen needs it: the website's `/home` sends only a sermon count, not every sermon.
+     *
+     * @param  array<string, mixed>  $series
+     * @return array<string, mixed>
+     */
+    public static function summaryFromApi(array $series): array
+    {
+        return [
+            'name' => $series['title'],
+            'slug' => $series['slug'],
+            'description' => $series['description'] ?? '',
+            'color' => $series['color'] ?: '#e85d26',
+            'image' => $series['thumbnail_url'] ?? null,
+            'count' => (int) ($series['sermon_count'] ?? count($series['sermons'] ?? [])),
+            'messages' => [],
         ];
     }
 

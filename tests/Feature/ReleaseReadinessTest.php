@@ -138,4 +138,86 @@ class ReleaseReadinessTest extends TestCase
         Http::assertSent(fn ($request) => str_ends_with($request->url(), '/auth/logout-all') && $request->hasHeader('Authorization', 'Bearer tok'));
         $this->assertFalse(MemberSession::check());
     }
+
+    public function test_a_website_that_did_not_answer_is_not_asked_again_straight_away(): void
+    {
+        $this->website();
+        Http::fake(['site.test/*' => Http::sequence()->pushFailedConnection()->push(['data' => []])]);
+
+        $this->assertNull(ContentApi::get('events'));
+        $this->assertNull(ContentApi::get('series'));
+        $this->assertNull(ContentApi::get('sermons'));
+
+        Http::assertSentCount(1);
+        $this->assertTrue(ContentApi::isDown());
+    }
+
+    public function test_a_server_error_also_pauses_further_requests_and_the_last_good_copy_is_used(): void
+    {
+        $this->website();
+        Http::fake(['site.test/api/v1/events' => Http::sequence()->push(['data' => [['id' => 1]]])->pushStatus(500)->push(['data' => []])]);
+
+        $this->assertSame([['id' => 1]], ContentApi::get('events'));
+
+        ContentApi::forget('events');
+
+        $this->assertSame([['id' => 1]], ContentApi::get('events'));
+        $this->assertSame([['id' => 1]], ContentApi::get('events'));
+        Http::assertSentCount(2);
+    }
+
+    public function test_a_missing_page_does_not_pause_the_rest_of_the_content(): void
+    {
+        $this->website();
+        Http::fake(['site.test/api/v1/series/nope' => Http::response([], 404), 'site.test/api/v1/events' => Http::response(['data' => []])]);
+
+        $this->assertNull(ContentApi::get('series/nope'));
+        $this->assertFalse(ContentApi::isDown());
+        $this->assertSame([], ContentApi::get('events'));
+    }
+
+    public function test_pull_to_refresh_lets_the_app_try_a_website_that_was_marked_down(): void
+    {
+        $this->website();
+        Http::fake(['site.test/*' => Http::sequence()->pushFailedConnection()->push(['data' => ['ok' => true]])]);
+
+        $this->assertNull(ContentApi::get('events'));
+        $this->assertTrue(ContentApi::isDown());
+
+        ContentApi::refresh();
+
+        $this->assertSame(['ok' => true], ContentApi::get('events'));
+    }
+
+    public function test_member_reads_fail_fast_while_the_website_is_down_but_writes_still_try(): void
+    {
+        $this->website();
+        Http::fake(['site.test/*' => Http::sequence()->pushFailedConnection()->push(['data' => null], 201)]);
+
+        ContentApi::get('events');
+
+        $this->assertFalse(ContentApi::send('GET', 'me/courses', [], 'tok')['ok']);
+        Http::assertSentCount(1);
+
+        $this->assertTrue(ContentApi::send('POST', 'prayer-requests', ['request' => 'x'])['ok']);
+        Http::assertSentCount(2);
+    }
+
+    public function test_the_home_screen_needs_only_one_website_call_for_events_and_series(): void
+    {
+        $this->website();
+        Http::fake([
+            'site.test/api/v1/home' => Http::response(['data' => [
+                'live' => null,
+                'verse' => null,
+                'events' => [['id' => 1, 'title' => 'Youth Night', 'location' => null, 'address' => null, 'category' => null, 'description' => null, 'starts_at' => '2027-07-10T19:00:00+01:00', 'ends_at' => null, 'image_url' => null]],
+                'series' => [['slug' => 'faith', 'title' => 'Faith Journey', 'description' => 'About faith', 'color' => '#374151', 'thumbnail_url' => null, 'sermon_count' => 6]],
+            ]]),
+            'site.test/*' => Http::response(['data' => []]),
+        ]);
+
+        Livewire::test(Home::class)->assertSee('Youth Night')->assertSee('Faith Journey')->assertSee('6 messages');
+
+        Http::assertNotSent(fn ($request) => str_ends_with($request->url(), '/api/v1/events') || str_ends_with($request->url(), '/api/v1/series'));
+    }
 }

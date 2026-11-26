@@ -319,4 +319,45 @@ class CoursesTest extends TestCase
     {
         $this->get(route('course.lesson', ['cdc', 'one']))->assertRedirect(route('login'));
     }
+
+    public function test_a_certificate_screen_shows_the_course_grade_and_holder(): void
+    {
+        $this->signIn();
+        Http::fake(['site.test/api/v1/me/certificates' => Http::response(['data' => [[
+            'enrollment_id' => 4, 'course_slug' => 'cdc', 'course_title' => 'Christian Development Course', 'instructor' => 'Pastor Sam',
+            'average_score' => 88.4, 'grade' => 'Distinction', 'issued_at' => '2026-09-01T10:00:00+01:00', 'duration_weeks' => 12,
+        ]]])]);
+
+        $this->get(route('course.certificate', 4))
+            ->assertOk()
+            ->assertSee('Ada Obi')
+            ->assertSee('Christian Development Course')
+            ->assertSee('Distinction')
+            ->assertSee('88%')
+            ->assertSee('1 September 2026')
+            ->assertSee('12 weeks')
+            ->assertSee('Pastor Sam');
+    }
+
+    public function test_someone_elses_certificate_is_not_found_and_guests_go_to_sign_in(): void
+    {
+        $this->get(route('course.certificate', 4))->assertRedirect(route('login'));
+
+        $this->signIn();
+        Http::fake(['site.test/api/v1/me/certificates' => Http::response(['data' => []])]);
+
+        $this->get(route('course.certificate', 4))->assertNotFound();
+    }
+
+    public function test_certificates_in_the_list_link_to_their_screen(): void
+    {
+        $this->signIn();
+        Http::fake([
+            'site.test/api/v1/me/certificates' => Http::response(['data' => [['enrollment_id' => 4, 'course_title' => 'CDC', 'grade' => null, 'issued_at' => '2026-09-01T10:00:00+01:00', 'instructor' => null]]]),
+            'site.test/api/v1/me/courses' => Http::response(['data' => []]),
+            'site.test/api/v1/courses' => Http::response(['data' => []]),
+        ]);
+
+        Livewire::test(Courses::class)->call('showTab', 'certificates')->assertSee(route('course.certificate', 4), false);
+    }
 }

@@ -44,7 +44,7 @@ class EventData
      * @param  array<string, mixed>  $event
      * @return array<string, mixed>
      */
-    private static function fromApi(array $event): array
+    public static function fromApi(array $event): array
     {
         $startsAt = Carbon::parse($event['starts_at']);
 

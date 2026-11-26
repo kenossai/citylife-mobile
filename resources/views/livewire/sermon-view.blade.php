@@ -17,7 +17,12 @@
 
         @if ($media)
             <div class="player-media">
-                @if ($media['type'] === 'youtube')
+                @if ($media['type'] === 'youtube' && $onDevice && ($sermon['id'] ?? null))
+                        <a href="/native/sermon/{{ ($sermon['id'] ?? null) }}" class="player-watch">
+                            <svg width="44" height="44" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+                            <span>Watch sermon</span>
+                        </a>
+                    @elseif ($media['type'] === 'youtube')
                     <iframe src="{{ $media['src'] }}" title="{{ $sermon['title'] }}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe>
                 @elseif ($media['type'] === 'video')
                     <video src="{{ $media['src'] }}" controls playsinline preload="metadata"></video>

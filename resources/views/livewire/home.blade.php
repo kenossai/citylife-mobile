@@ -49,7 +49,7 @@
         <div class="home-series">
             @foreach ($series as $item)
                 <a href="{{ route('sermons.series', $item['slug']) }}" wire:navigate style="--series: {{ ($item['image'] ?? null) ? "url('{$item['image']}') center / cover no-repeat, {$item['color']}" : $item['color'] }}">
-                    <small>{{ count($item['messages']) }} messages</small>
+                    <small>{{ $item['count'] ?? count($item['messages']) }} messages</small>
                     <strong>{{ $item['name'] }}</strong>
                     <p>{{ $item['description'] }}</p>
                 </a>

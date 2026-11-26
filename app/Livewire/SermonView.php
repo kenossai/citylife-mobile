@@ -7,6 +7,7 @@ use App\Support\SermonMedia;
 use App\Support\SermonViews;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Native\Mobile\Facades\System;
 
 #[Layout('components.layouts.main')]
 class SermonView extends Component
@@ -28,6 +29,7 @@ class SermonView extends Component
     public function render()
     {
         return view('livewire.sermon-view', [
+            'onDevice' => System::isMobile(),
             'media' => SermonMedia::from($this->sermon['video_url'] ?? null),
         ]);
     }
