@@ -2,12 +2,16 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\Home;
+use App\Livewire\Sermons;
 use App\NativeComponents\NativeEventDetail;
 use App\NativeComponents\NativeEvents;
 use App\NativeComponents\NativePrayerRequest;
 use App\NativeComponents\NativeSermonPlayer;
+use App\Support\LibraryStore;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Livewire\Livewire;
 use Native\Mobile\System;
 use Native\Mobile\Testing\FakeBridge;
 use Native\Mobile\Testing\Native;
@@ -201,7 +205,7 @@ class NativeScreensTest extends TestCase
         ];
     }
 
-    public function test_a_youtube_sermon_plays_in_a_native_web_view_inside_the_app(): void
+    public function test_a_youtube_sermon_plays_as_soon_as_it_opens_with_no_play_button(): void
     {
         Http::fake(['site.test/api/v1/sermons/11' => Http::response(['data' => $this->sermon()]), 'site.test/*' => Http::response(['data' => ['views' => 6]])]);
 
@@ -210,9 +214,23 @@ class NativeScreensTest extends TestCase
             ->assertSee('Pastor Sam')
             ->assertSee('Matthew 6:33')
             ->assertSee('About priorities')
-            ->assertElement('webview', fn ($node) => str_contains(json_encode($node, JSON_UNESCAPED_SLASHES), 'youtube-nocookie.com/embed/dQw4w9WgXcQ'));
+            ->assertDontSee('Play sermon')
+            ->assertDontSee('Close video')
+            ->assertElement('webview', fn ($node) => str_contains(json_encode($node, JSON_UNESCAPED_SLASHES), 'site.test/app/youtube/dQw4w9WgXcQ?autoplay=1'));
 
         $screen->assertNativeNotCalled('Browser.OpenInApp');
+    }
+
+    public function test_a_long_description_can_be_expanded(): void
+    {
+        Http::fake(['site.test/api/v1/sermons/11' => Http::response(['data' => $this->sermon(['description' => str_repeat('word ', 80).'THE END'])]), 'site.test/*' => Http::response(['data' => []])]);
+
+        Native::test(NativeSermonPlayer::class, ['id' => 11])
+            ->assertSee('Read more')
+            ->assertDontSee('THE END')
+            ->call('toggleReadMore')
+            ->assertSee('THE END')
+            ->assertSee('Show less');
     }
 
     public function test_watching_counts_a_view(): void
@@ -249,15 +267,15 @@ class NativeScreensTest extends TestCase
         Native::test(NativeSermonPlayer::class, ['id' => 11])
             ->assertSee("We can't load this sermon right now")
             ->call('close')
-            ->assertExitedToWeb('/sermons/watch/11');
+            ->assertExitedToWeb('/app/return');
     }
 
     public function test_closing_or_pressing_back_returns_to_the_sermon_page(): void
     {
         Http::fake(['site.test/api/v1/sermons/11' => Http::response(['data' => $this->sermon()]), 'site.test/*' => Http::response(['data' => []])]);
 
-        Native::test(NativeSermonPlayer::class, ['id' => 11])->call('close')->assertExitedToWeb('/sermons/watch/11');
-        Native::test(NativeSermonPlayer::class, ['id' => 11])->call('onBackPressed')->assertExitedToWeb('/sermons/watch/11');
+        Native::test(NativeSermonPlayer::class, ['id' => 11])->call('close')->assertExitedToWeb('/app/return');
+        Native::test(NativeSermonPlayer::class, ['id' => 11])->call('onBackPressed')->assertExitedToWeb('/app/return');
     }
 
     public function test_on_the_phone_the_sermon_page_links_to_the_native_player_instead_of_a_frame_the_shell_would_send_to_safari(): void
@@ -271,6 +289,21 @@ class NativeScreensTest extends TestCase
             ->assertSee('href="/native/sermon/11"', false)
             ->assertSee('Watch sermon')
             ->assertDontSee('<iframe', false);
+    }
+
+    public function test_on_the_phone_a_youtube_sermon_in_the_list_opens_the_player_directly(): void
+    {
+        config(['services.citylife.url' => 'https://site.test']);
+        FakeBridge::enable()->respondTo('Device.GetInfo', ['info' => json_encode(['platform' => 'ios'])]);
+        Http::fake(['site.test/api/v1/sermons' => Http::response(['data' => [
+            $this->sermon(['id' => 11]),
+            $this->sermon(['id' => 12, 'title' => 'Audio only', 'video_url' => 'https://site.test/a.mp3']),
+        ]])]);
+
+        Livewire::test(Sermons::class)
+            ->assertSeeHtml('href="/native/sermon/11"')
+            ->assertDontSeeHtml('href="/native/sermon/12"')
+            ->assertSeeHtml('href="'.route('sermons.watch', 12).'"');
     }
 
     public function test_in_a_desktop_browser_the_sermon_page_still_embeds_the_video(): void
@@ -291,5 +324,79 @@ class NativeScreensTest extends TestCase
         ]]), 'site.test/*' => Http::response(['data' => []])]);
 
         $this->get(route('sermons.play', ['faith', 1]))->assertOk()->assertSee('href="/native/sermon/21"', false)->assertDontSee('<iframe', false);
+    }
+
+    /** @return array<string, mixed> */
+    private function homeFeed(?array $live): array
+    {
+        return ['data' => ['live' => $live, 'verse' => null, 'events' => [], 'series' => []]];
+    }
+
+    public function test_the_live_card_opens_the_native_player_on_the_phone_for_a_youtube_stream(): void
+    {
+        FakeBridge::enable()->respondTo('Device.GetInfo', ['info' => json_encode(['platform' => 'ios'])]);
+        Http::fake(['site.test/api/v1/home' => Http::response($this->homeFeed(['id' => 11, 'title' => 'Sunday Service', 'speaker' => 'Pastor Sam', 'video_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'])), 'site.test/*' => Http::response(['data' => []])]);
+
+        $html = Livewire::test(Home::class)->assertSee('LIVE NOW')->assertSee('Sunday Service')->html();
+
+        $this->assertMatchesRegularExpression('~<a href="/native/sermon/11"\s+class="watch">Watch</a>~', $html);
+    }
+
+    public function test_the_live_card_opens_the_sermon_page_when_not_on_the_phone(): void
+    {
+        Http::fake(['site.test/api/v1/home' => Http::response($this->homeFeed(['id' => 11, 'title' => 'Sunday Service', 'speaker' => null, 'video_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'])), 'site.test/*' => Http::response(['data' => []])]);
+
+        Livewire::test(Home::class)->assertSee(route('sermons.watch', 11), false)->assertDontSee('/native/sermon/11', false);
+    }
+
+    public function test_the_live_card_falls_back_to_the_sermon_list_when_there_is_nothing_to_play(): void
+    {
+        Http::fake(['site.test/api/v1/home' => Http::response($this->homeFeed(['id' => 11, 'title' => 'Sunday Service', 'speaker' => null, 'video_url' => null])), 'site.test/*' => Http::response(['data' => []])]);
+
+        Livewire::test(Home::class)->assertSee('LIVE NOW')->assertSee(route('sermons'), false)->assertDontSee(route('sermons.watch', 11), false);
+    }
+
+    public function test_a_vimeo_style_live_link_opens_the_sermon_page_not_the_native_youtube_player(): void
+    {
+        FakeBridge::enable()->respondTo('Device.GetInfo', ['info' => json_encode(['platform' => 'ios'])]);
+        Http::fake(['site.test/api/v1/home' => Http::response($this->homeFeed(['id' => 11, 'title' => 'Sunday Service', 'speaker' => null, 'video_url' => 'https://vimeo.com/123'])), 'site.test/*' => Http::response(['data' => []])]);
+
+        Livewire::test(Home::class)->assertSee(route('sermons.watch', 11), false)->assertDontSee('/native/sermon/11', false);
+    }
+
+    public function test_the_live_card_is_hidden_when_nothing_is_live(): void
+    {
+        Http::fake(['site.test/api/v1/home' => Http::response($this->homeFeed(null)), 'site.test/*' => Http::response(['data' => []])]);
+
+        Livewire::test(Home::class)->assertDontSee('LIVE NOW');
+    }
+
+    public function test_sermons_without_an_uploaded_image_show_their_youtube_thumbnail_in_the_list(): void
+    {
+        Http::fake(['site.test/api/v1/sermons' => Http::response(['data' => [
+            ['id' => 11, 'title' => 'Seek First', 'speaker' => 'Pastor Sam', 'preached_at' => '2026-10-11', 'duration' => '38:00', 'views' => 5, 'thumbnail_url' => 'https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg', 'series' => null],
+        ]]), 'site.test/*' => Http::response(['data' => []])]);
+
+        Livewire::test(Sermons::class)->assertSee('https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg', false);
+    }
+
+    public function test_the_return_page_steps_the_web_view_back(): void
+    {
+        $this->get('/app/return')->assertOk()->assertSee('window.history.back()', false);
+    }
+
+    public function test_opening_a_sermon_adds_it_to_recently_played_and_the_heart_saves_it(): void
+    {
+        Http::fake(['site.test/api/v1/sermons/11' => Http::response(['data' => $this->sermon()]), 'site.test/*' => Http::response(['data' => []])]);
+
+        $screen = Native::test(NativeSermonPlayer::class, ['id' => 11]);
+
+        $this->assertSame([11], LibraryStore::recent());
+        $this->assertFalse(LibraryStore::isFavourite(11));
+
+        $screen->call('toggleFavourite')->assertSet('isFavourite', true);
+        $this->assertTrue(LibraryStore::isFavourite(11));
+
+        $screen->call('toggleFavourite')->assertSet('isFavourite', false);
     }
 }

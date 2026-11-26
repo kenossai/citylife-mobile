@@ -63,7 +63,7 @@ class BibleTest extends TestCase
         Livewire::test(BibleBooks::class)
             ->assertSee('BSB')
             ->assertSee('John')
-            ->assertSee('21 chapters')
+            ->assertSeeInOrder(['John', '21', 'chapters'])
             ->assertDontSee('Genesis')
             ->call('$set', 'testament', 'old_testament')
             ->assertSee('Genesis')
@@ -216,6 +216,6 @@ class BibleTest extends TestCase
     {
         $this->get(route('home'))->assertSee(route('bible'), false);
 
-        Livewire::test(More::class)->assertSee(route('bible'), false)->assertSee('/native/events', false)->assertSee('/native/prayer', false);
+        Livewire::test(More::class)->assertSee(route('bible'), false)->assertDontSee('/native/events', false)->assertDontSee('/native/prayer', false);
     }
 }

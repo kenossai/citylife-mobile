@@ -3,6 +3,7 @@
 use App\Livewire\BibleBooks;
 use App\Livewire\BibleChapters;
 use App\Livewire\BibleReader;
+use App\Livewire\BookDetail;
 use App\Livewire\CertificateDetail;
 use App\Livewire\ChurchInfo;
 use App\Livewire\CourseDetail;
@@ -12,6 +13,7 @@ use App\Livewire\EventDetail;
 use App\Livewire\Events;
 use App\Livewire\Give;
 use App\Livewire\Home;
+use App\Livewire\Library;
 use App\Livewire\Login;
 use App\Livewire\Placeholder;
 use App\Livewire\PrayerRequests;
@@ -33,6 +35,8 @@ Route::get('/login', Login::class)->name('login');
 Route::get('/profile', Profile::class)->name('profile');
 Route::get('/prayer-requests', PrayerRequests::class)->name('prayer-requests');
 Route::get('/sermons', Sermons::class)->name('sermons');
+Route::get('/library', Library::class)->name('library');
+Route::get('/library/books/{slug}', BookDetail::class)->name('library.book');
 Route::get('/sermons/series/{slug}', SeriesDetail::class)->name('sermons.series');
 Route::get('/sermons/series/{slug}/{number}', SermonPlayer::class)->whereNumber('number')->name('sermons.play');
 Route::get('/course', Courses::class)->name('course');
@@ -63,3 +67,6 @@ foreach (['location', 'call-us', 'email-us', 'help-support', 'share-app'] as $pa
         ->defaults('page', $page)
         ->name($page);
 }
+
+// Where a native screen sends the web view when it closes: one step back, to the page the person came from.
+Route::view('/app/return', 'app-return')->name('app.return');

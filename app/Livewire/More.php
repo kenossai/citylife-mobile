@@ -28,7 +28,6 @@ class More extends Component
         ],
         'Connect' => [
             ['Prayer Requests', 'M4 4h16v13H8l-4 4z', null, 'prayer-requests'],
-            ['Bible', 'M12 6c-2-1.5-5-2-9-2v14c4 0 7 .5 9 2 2-1.5 5-2 9-2V4c-4 0-7 .5-9 2zM12 6v14', null, 'bible'],
             ['Bible Reading Plan', 'M12 6c-2-1.5-5-2-9-2v14c4 0 7 .5 9 2 2-1.5 5-2 9-2V4c-4 0-7 .5-9 2zM12 6v14', null, 'bible-reading-plan'],
             ['Sermons & Messages', 'M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zM6 11a6 6 0 0 0 12 0M12 17v4', null, 'sermons'],
             ['Small Groups', 'M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 20c0-3 3-5 7-5s7 2 7 5zM17 5a3 3 0 0 1 0 6M20 15c1.5.7 2 2 2 5', null, 'small-groups'],

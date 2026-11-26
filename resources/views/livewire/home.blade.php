@@ -21,7 +21,7 @@
                     <h2>{{ $liveTitle }}</h2>
                     <p>{{ $liveSubtitle }}</p>
                 </div>
-                <a href="{{ route('sermons') }}" wire:navigate class="watch">Watch</a>
+                <a href="{{ $watch['url'] }}" @unless ($watch['native']) wire:navigate @endunless class="watch">Watch</a>
             </section>
         @endif
 

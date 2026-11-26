@@ -158,8 +158,14 @@ class ContentApiTest extends TestCase
 
     public function test_sermon_media_detects_how_to_play_a_url(): void
     {
-        $this->assertSame('https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?playsinline=1&rel=0', SermonMedia::from('https://www.youtube.com/watch?v=dQw4w9WgXcQ')['src']);
+        config(['services.citylife.url' => 'https://site.test']);
+
+        $this->assertSame('https://site.test/app/youtube/dQw4w9WgXcQ', SermonMedia::from('https://www.youtube.com/watch?v=dQw4w9WgXcQ')['src']);
         $this->assertSame('youtube', SermonMedia::from('https://youtu.be/dQw4w9WgXcQ')['type']);
+
+        config(['services.citylife.url' => null]);
+        $this->assertSame('https://www.youtube.com/embed/dQw4w9WgXcQ?playsinline=1&rel=0', SermonMedia::from('https://youtu.be/dQw4w9WgXcQ')['src']);
+        config(['services.citylife.url' => 'https://site.test']);
         $this->assertSame('video', SermonMedia::from('https://cdn.test/a.mp4?x=1')['type']);
         $this->assertSame('audio', SermonMedia::from('https://cdn.test/a.mp3')['type']);
         $this->assertSame('link', SermonMedia::from('https://vimeo.com/123')['type']);
@@ -177,7 +183,7 @@ class ContentApiTest extends TestCase
 
         $this->get(route('sermons.play', ['faith-journey', 1]))
             ->assertOk()
-            ->assertSee('youtube-nocookie.com/embed/dQw4w9WgXcQ', false)
+            ->assertSee('site.test/app/youtube/dQw4w9WgXcQ', false)
             ->assertDontSee('Back 15 seconds');
     }
 }

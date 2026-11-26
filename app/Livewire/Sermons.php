@@ -43,6 +43,7 @@ class Sermons extends Component
             'views' => $sermon['views'] ?? 0,
             'color' => $sermon['series']['color'] ?? '#292929',
             'image' => $sermon['thumbnail_url'] ?? null,
+            'video_url' => $sermon['video_url'] ?? null,
         ], ContentApi::get('sermons') ?? []);
     }
 
